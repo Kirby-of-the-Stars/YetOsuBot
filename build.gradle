@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group 'cn.day.kbcplugin'
+version '0.1.0'
+apply plugin: 'com.github.johnrengelman.shadow'
+archivesBaseName = "OsuBot"
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'com.github.SNWCreations:JKook:0.49.2'
+    implementation 'cn.hutool:hutool-all:5.8.21'
+    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
+    compileOnly 'org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0'
+    implementation 'org.jsoup:jsoup:1.15.3'
+    implementation 'net.java.dev.jna:jna:5.13.0'
+    testImplementation('org.noear:logback-solon-plugin:2.5.11')
+}
+
+compileJava {
+    options.encoding = "UTF-8"
+    options.compilerArgs << "-parameters"
+}
+
+shadowJar {
+    archiveClassifier = ''
+}
+
+String kbcpluginsPath = "C:\\Users\\Time\\Desktop\\project\\debugkbc\\plugins"
+String kbcFile = "C:\\Users\\Time\\Desktop\\project\\debugkbc\\kookbc-0.27.3.jar"
+String kbcPath = "C:\\Users\\Time\\Desktop\\project\\debugkbc"
+
+tasks.register("BuildAndRun"){
+    group "build"
+    dependsOn shadowJar
+    doFirst {
+        def deleteFiles = fileTree(kbcpluginsPath).include("**/*.jar")
+        delete deleteFiles
+    }
+    doLast {
+        File buildFile = shadowJar.archiveFile.get().asFile
+        copy{
+            from(buildFile)
+            into(kbcpluginsPath)
+        }
+//        runCommand("cmd.exe")
+    }
+}
+def runCommand(String... command) {
+    ProcessBuilder processBuilder = new ProcessBuilder()
+    processBuilder.redirectErrorStream(true)
+    processBuilder.command(command)
+    Process process = processBuilder.start()
+    println("启动kookbc")
+    InputStreamReader inputReader = new InputStreamReader(process.getInputStream(), "UTF-8")
+    BufferedReader bufferedReader = new BufferedReader(inputReader)
+    String line
+    while ((line = bufferedReader.readLine()) != null) {
+        println(line)
+    }
+    process.waitFor()
+}
+
+test {
+    useJUnitPlatform()
+}
