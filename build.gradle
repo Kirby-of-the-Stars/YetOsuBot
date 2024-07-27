@@ -1,74 +1,79 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
-group 'cn.day.kbcplugin'
-version '0.1.0'
-apply plugin: 'com.github.johnrengelman.shadow'
-archivesBaseName = "OsuBot"
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+group = 'com.day'
+version = '0.0.1'
+archivesBaseName = 'YetOsuBot'
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.fabricmc.net/' }//for kbc mixin(not for use)
+    maven { url 'https://repo.panda-lang.org/releases' }//for litecommand
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    implementation 'com.github.SNWCreations:JKook:0.49.2'
-    implementation 'cn.hutool:hutool-all:5.8.21'
-    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
-    compileOnly 'org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0'
-    implementation 'org.jsoup:jsoup:1.15.3'
+    compileOnly 'com.github.SNWCreations:KookBC:0.30.2'
+    implementation 'com.github.SNWCreations:JKook:0.52.1'
+
+    implementation 'org.xerial:sqlite-jdbc:3.46.0.0'
+    // lombok
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    implementation 'org.dromara.hutool:hutool-core:6.0.0-M14'
+    implementation 'org.dromara.hutool:hutool-setting:6.0.0-M14'
+    implementation 'org.dromara.hutool:hutool-json:6.0.0-M14'
+    implementation 'org.apache.commons:commons-dbcp2:2.12.0'
+    implementation 'org.xerial:sqlite-jdbc:3.46.0.0'
+
     implementation 'net.java.dev.jna:jna:5.13.0'
-    testImplementation('org.noear:logback-solon-plugin:2.5.11')
+    implementation 'com.mybatis-flex:mybatis-flex-core:1.9.3'
+    annotationProcessor 'com.mybatis-flex:mybatis-flex-processor:1.9.3'
+
+    testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+    testImplementation 'ch.qos.logback:logback-core:1.5.6'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
 }
 
-compileJava {
-    options.encoding = "UTF-8"
-    options.compilerArgs << "-parameters"
-}
+def outPutDir = 'C:\\Users\\Time\\Desktop\\project\\debugkbc\\osuBotNew\\plugins'
+
 
 shadowJar {
     archiveClassifier = ''
+    dependencies {
+        exclude(dependency('org.slf4j:slf4j-api'))
+    }
 }
 
-String kbcpluginsPath = "C:\\Users\\Time\\Desktop\\project\\debugkbc\\plugins"
-String kbcFile = "C:\\Users\\Time\\Desktop\\project\\debugkbc\\kookbc-0.27.3.jar"
-String kbcPath = "C:\\Users\\Time\\Desktop\\project\\debugkbc"
-
-tasks.register("BuildAndRun"){
-    group "build"
-    dependsOn shadowJar
+build {
     doFirst {
-        def deleteFiles = fileTree(kbcpluginsPath).include("**/*.jar")
-        delete deleteFiles
+        delete fileTree(dir: file(outPutDir), include: "**/*.jar")
     }
+    dependsOn shadowJar
     doLast {
-        File buildFile = shadowJar.archiveFile.get().asFile
-        copy{
-            from(buildFile)
-            into(kbcpluginsPath)
+        copy {
+            from layout.buildDirectory.dir("/libs")
+            into file(outPutDir)
+            include("*.jar")
         }
-//        runCommand("cmd.exe")
     }
 }
-def runCommand(String... command) {
-    ProcessBuilder processBuilder = new ProcessBuilder()
-    processBuilder.redirectErrorStream(true)
-    processBuilder.command(command)
-    Process process = processBuilder.start()
-    println("启动kookbc")
-    InputStreamReader inputReader = new InputStreamReader(process.getInputStream(), "UTF-8")
-    BufferedReader bufferedReader = new BufferedReader(inputReader)
-    String line
-    while ((line = bufferedReader.readLine()) != null) {
-        println(line)
-    }
-    process.waitFor()
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
 }
-
 test {
-    useJUnitPlatform()
+//    useJUnitPlatform()
 }

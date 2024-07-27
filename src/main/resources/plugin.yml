@@ -1,5 +1,5 @@
-name: OsuBot
+name: YetOsuBot
 version: 0.1.0
-api-version: 0.49.2
+api-version: 0.52.1
 authors: ["DAYGood_Time"]
 main: cn.day.kbcplugin.osubot.Main

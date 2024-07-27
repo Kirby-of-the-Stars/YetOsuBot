@@ -1,82 +1,96 @@
 package cn.day.kbcplugin.osubot.api;
 
 import cn.day.kbcplugin.osubot.Main;
-import cn.day.kbcplugin.osubot.pojo.api.ChimuMap;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ZipUtil;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
+import cn.day.kbcplugin.osubot.api.base.IBeatMapBGProvider;
+import cn.day.kbcplugin.osubot.api.base.IBeatmapDownLoadProvider;
+import cn.day.kbcplugin.osubot.utils.URLBuilder;
+import okhttp3.*;
+import org.dromara.hutool.core.io.file.FileUtil;
+import org.dromara.hutool.core.text.StrUtil;
+import org.dromara.hutool.json.JSONException;
+import org.dromara.hutool.json.JSONUtil;
+import org.dromara.hutool.log.Log;
+import org.dromara.hutool.log.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 
-//因为返回的osu文件名有特殊符号的问题，建议弃用
-@Deprecated
-public class ChimuAPI {
+public class ChimuAPI  implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
 
-    private static final String GET_MAP_URL = "https://api.chimu.moe/v1/map/";
+    public static final String BASE_URL = "https://catboy.best";
+    public static final String BG_URL = "/preview/background/";
+    private static final String API_VERSION = "/api/v2";
+    private final OkHttpClient client = new OkHttpClient();
+    private static final Log logger = LogFactory.getLog("[Chimu API]");
 
-    private static final String DOWNLOAD_URL = "https://api.chimu.moe/v1/download/";
-
-    public ChimuMap getMapInfo(String BeatMapId) {
-        JSONObject jobj = JSONUtil.parseObj(HttpUtil.get(GET_MAP_URL + BeatMapId));
-        if (jobj.containsKey("error_message")) {
-            Main.logger.warn("获取chimuAPI失败,原因:{}", jobj.getStr("error_message"));
-            return null;
+    @Override
+    public boolean downloadMap(String beatmapId, File target) {
+        final String url = StrUtil.format("{}{}{}",BASE_URL,"/osu/",beatmapId);
+        try {
+            HttpUrl httpUrl = URLBuilder.builder(url).build();
+            Request request = new Request.Builder().url(httpUrl).get().build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                ResponseBody resBody = response.body();
+                if (resBody == null) throw new IOException("Empty Response" + response);
+                MediaType contentType = resBody.contentType();
+                if(contentType == null) throw new IOException("Empty Response Null Content Type" + response);
+                if(contentType.equals(MediaType.parse("application/json"))) {
+                    String error = JSONUtil.parseObj(resBody.string()).getStr("error");
+                    throw new IOException("Bad Request:"+error);
+                }
+                FileUtil.touch(target);
+                FileUtil.writeBytes(resBody.bytes(),target);
+                return true;
+            }
+        } catch (IOException e) {
+            logger.error("下载地图失败:{}", e.getLocalizedMessage(), e);
+        } catch (JSONException e) {
+            logger.error("JSON解析异常:{}", e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            logger.error("API意外异常:{}", e.getLocalizedMessage(), e);
         }
-        //TODO should add to DB
-        return jobj.toBean(ChimuMap.class);
+        return false;
     }
 
-    public String getOsuFilePath(String BeatMapId) {
-        //TODO need store cache
-        // if cache not exit
-        ChimuMap chimuMap = getMapInfo(BeatMapId);
-        if (chimuMap == null) return null;
-        StringBuffer filePath = new StringBuffer(String.valueOf(chimuMap.getParentSetId()));
-        String osuFileName = chimuMap.getOsuFile().replace("/","");
-        filePath.append(File.separator)
-                .append(osuFileName);
-        File osuFile = new File(Main.BeatMapsPath, filePath.toString());
-        if(osuFile.exists()){
-            return osuFile.getAbsolutePath();
-        }else if (downloadMap(String.valueOf(chimuMap.getParentSetId()))) {
-            if(osuFile.exists()) return osuFile.getAbsolutePath();
+    @Override
+    public String getName() {
+        return "Chimu API";
+    }
+
+
+    @Override
+    public File downloadBG(String beatmapId, File target) {
+        final String url = StrUtil.format("{}{}{}",BASE_URL,BG_URL,beatmapId);
+        try {
+            HttpUrl httpUrl = URLBuilder.builder(url).build();
+            Request request = new Request.Builder().url(httpUrl).get().build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                ResponseBody resBody = response.body();
+                if (resBody == null) throw new IOException("Empty Response" + response);
+                MediaType contentType = resBody.contentType();
+                if(contentType == null) throw new IOException("Empty Response Null Content Type" + response);
+                if(contentType.equals(MediaType.parse("application/json"))) {
+                    String error = JSONUtil.parseObj(resBody.string()).getStr("error");
+                    throw new IOException("Bad Request:"+error);
+                }
+                // observer which is none png file
+                if(!contentType.equals(MediaType.parse("image/png"))) {
+                    logger.warn("some file doesn't support image/png :{}", contentType);
+                }
+                target = new File(target,beatmapId + "-bg"+".png");
+                FileUtil.touch(target);
+                FileUtil.writeBytes(resBody.bytes(),target);
+                return target;
+            }
+        } catch (IOException e) {
+            logger.error("下载地图失败:{}", e.getLocalizedMessage(), e);
+        } catch (JSONException e) {
+            logger.error("JSON解析异常:{}", e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            logger.error("API意外异常:{}", e.getLocalizedMessage(), e);
         }
         return null;
     }
-
-    //TODO API REQUEST NEED TASK QUE
-    public boolean downloadMap(String MapSetId) {
-        File osuFile = new File(Main.BeatMapsPath, MapSetId + ".osz");
-        try (OutputStream os = Files.newOutputStream(osuFile.toPath())) {
-            long size = HttpUtil.download(DOWNLOAD_URL + MapSetId, os, true);
-            Main.logger.info("下载地图{}成功,大小:{}", MapSetId, size);
-            File mapFolder = ZipUtil.unzip(osuFile);
-            if (mapFolder.exists() && mapFolder.isDirectory()) {
-                for (File file : mapFolder.listFiles()) {
-                    if (file.isDirectory()) {
-                        FileUtil.del(file);
-                        continue;
-                    }
-                    String fileName = file.getName();
-                    if (fileName.contains(".mp3")
-                            || fileName.contains(".wav")
-                            || fileName.contains(".ogg")
-                            || fileName.contains(".osb")
-                    ) {
-                        file.delete();
-                    }
-                }
-            }
-        } catch (IOException ignore) {
-            return false;
-        }
-        osuFile.delete();
-        return true;
-    }
-
 }

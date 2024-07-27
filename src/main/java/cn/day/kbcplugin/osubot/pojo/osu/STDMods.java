@@ -1,5 +1,6 @@
 package cn.day.kbcplugin.osubot.pojo.osu;
 
+@Deprecated
 public class STDMods {
     /*
      *     const NF: u32 = 1u32;
@@ -14,7 +15,7 @@ public class STDMods {
      *     const SO: u32 = 4_096u32;
      */
     private long result = 0;
-    public long ModsChain() {
+    public Long ModsChain() {
         if (result < 0) {
             throw new IllegalArgumentException("mods should bigger then 0");
         } else {

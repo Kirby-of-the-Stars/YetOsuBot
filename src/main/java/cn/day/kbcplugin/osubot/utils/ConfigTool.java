@@ -29,13 +29,12 @@ public class ConfigTool {
                 newConfig.set(path, oldConfig.get(path));
             }
         }
-
         // 保存更新后的配置文件
         try {
             // 保存FileConfiguration到文件
             newConfig.save(new File(Main.rootPath,"config.yml"));
         } catch (IOException e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
         }
     }
 }

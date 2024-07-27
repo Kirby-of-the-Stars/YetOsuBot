@@ -1,18 +1,21 @@
 package cn.day.kbcplugin.osubot.utils;
 
 import cn.day.kbcplugin.osubot.Main;
-import cn.day.kbcplugin.osubot.api.BanchoAPI;
 import cn.day.kbcplugin.osubot.enums.CompressLevelEnum;
-import cn.day.kbcplugin.osubot.pojo.common.AbstractBeatmap;
-import cn.day.kbcplugin.osubot.pojo.common.AbstractScore;
-import cn.day.kbcplugin.osubot.pojo.osu.OppaiResult;
-import cn.hutool.core.io.FileUtil;
+import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
+import cn.day.kbcplugin.osubot.model.api.base.IScore;
+import cn.day.kbcplugin.osubot.model.api.base.IUserInfo;
+import cn.day.kbcplugin.osubot.model.entity.Account;
+import cn.day.kbcplugin.osubot.model.api.base.Mods;
+import cn.day.kbcplugin.osubot.pojo.osu.PPResult;
+import org.dromara.hutool.core.io.file.FileUtil;
+import org.dromara.hutool.log.Log;
+import org.dromara.hutool.log.LogFactory;
+
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,37 +31,36 @@ import static cn.day.kbcplugin.osubot.enums.CompressLevelEnum.USHORT_555_RGB_PNG
 
 /**
  * 绘图工具类。
- *
- * @author QHS
  */
-
 public class ImgUtil {
 
-    private final BanchoAPI banchoApi;
-    private final ScoreUtil scoreUtil;
+    private static final Log logger = LogFactory.getLog("[ImgUtil]");
 
-    public ImgUtil(BanchoAPI banchoApi, ScoreUtil scoreUtil) {
-        this.banchoApi = banchoApi;
-        this.scoreUtil = scoreUtil;
+    public static void Init(){
         try {
             // 加载自定义字体
-            Main.logger.info("加载自义定字体");
+            logger.info("加载自义定字体");
             Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(Main.rootPath, "Gayatri.ttf"));
             // 注册自定义字体
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(customFont);
         } catch (IOException | FontFormatException e) {
-            Main.logger.warn("加载字体失败:使用默认字体");
+            logger.warn("加载字体失败:使用默认字体");
         }
     }
 
-    public BufferedImage get(String name) {
+    /**
+     * 获取素材
+     *
+     * @param name 素材名
+     */
+    public static BufferedImage get(String name) {
         byte[] data = FileUtil.readBytes(new File(Main.imgsPath, name));
         try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
             return ImageIO.read(in);
         } catch (IOException e) {
-            Main.logger.error("[获取图片失败]:" + name);
-            return null;
+            logger.error("[获取图片失败]:" + name);
+            throw new RuntimeException("unable to load image " + name);
         }
     }
 
@@ -74,13 +76,17 @@ public class ImgUtil {
      * @param scoreRank   scoreRank
      * @param mode        模式，只支持0/1/2/3
      * @return Base64字串 string
+     * @author QHS
      */
-//    public String drawUserInfo(AbstractUserInfo userFromAPI, Userinfo userInDB, String role, int day, boolean approximate, int scoreRank, Integer mode) {
-//        BufferedImage ava = banchoApi.getAvatar(userFromAPI.getUserId());
+    @Deprecated
+    public String drawUserInfo(IUserInfo userFromAPI, Account userInDB, String role, int day, boolean approximate, int scoreRank, Integer mode) {
+        //TODO waiting for finish
+
+        //        BufferedImage ava = banchoApi.getAvatar(userFromAPI.getUserId());
 //        BufferedImage bg = null;
 //        BufferedImage layout = getCopyImage(get("layout.png"));
 //        BufferedImage scoreRankBG = getCopyImage(get("scorerank.png"));
-//        //TODO issue
+//        //issue
 //        byte[] data = FileUtil.readBytes(new File(Main.imgsPath, userFromAPI.getUserId() + ".png"));
 //        if (data != null) {
 //            try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
@@ -181,9 +187,9 @@ public class ImgUtil {
 //                drawTextToImage(g2, "#666666", "宋体", 15, "请求的日期没有数据", 718, 138);
 //                //算出天数差别
 //                drawTextToImage(g2, "#666666", "宋体", 15, "『对比于" +
-//                        ChronoUnit.DAYS.between(userInDB.getQueryDate(), LocalDate.now())
+//                                                           ChronoUnit.DAYS.between(userInDB.getQueryDate(), LocalDate.now())
 ////                            Long.valueOf(((Calendar.getInstance().getTime().getTime() - .getTime()) / 1000 / 60 / 60 / 24)).toString()
-//                        + "天前』", 725, 155);
+//                                                           + "天前』", 725, 155);
 //            } else {
 //                //如果取到的是精确数据
 //                drawTextToImage(g2, "#666666", "宋体", 15, "『对比于" + day + "天前』", 725, 155);
@@ -317,36 +323,38 @@ public class ImgUtil {
 //        }
 //        g2.dispose();
 //        return drawImage(bg, 不压缩);
-//    }
+        return null;
+    }
 
     /**
      * 绘制结算界面
      *
-     * @param userName the username
-     * @param score    the score
-     * @param beatmap  the beatmap
-     * @param mode     the mode
-     * @return the string
+     * @param userName 用户名
+     * @param score    分数
+     * @param beatmap  铺面信息
+     * @param mode     模式
+     * @return base64String
      */
-    public String drawResult(String userName, AbstractScore score, AbstractBeatmap beatmap, int mode) {
-        String accS = new DecimalFormat("###.00").format((double)score.Acc());
-        Map<String, String> mods = ScoreUtil.convertModToHashMap(score.mods());
+    public static String drawResult(String userName, IScore score, IBeatmap beatmap, int mode) {
+        String accS = new DecimalFormat("###.00").format((double) score.Acc());
+        Map<String, String> mods = Mods.convertModToHashMap(score.mods());
         //这个none是为了BP节省代码，在这里移除掉
         mods.remove("None");
         //离线计算PP
-        OppaiResult oppaiResult = null;
+        PPResult ppResult = null;
         try {
-            oppaiResult = scoreUtil.calcPP_rosu(score, beatmap);
+            ppResult = ScoreUtil.calcPPWithRosu(score, beatmap);
         } catch (Exception e) {
             //如果acc过低或者不是std
-            Main.logger.error("rsou-pp出错", e);
+            logger.error("rsou-pp出错", e);
         }
-        BufferedImage bg = obtainBg(Main.sayobotApi.getBG(beatmap));
+        File bgFile = MapHelper.getBgFile(String.valueOf(beatmap.getBid()),String.valueOf(beatmap.getSid()));
+        if (bgFile==null) return null;
+        BufferedImage bg = obtainBg(bgFile);
         if (bg == null) {
             //TODO usingDefaultBG();
             return null;
         }
-
         //2017-11-3 17:51:47这里有莫名的空指针，比较迷，在webPageManager.getBG里加一个判断为空则抛出空指针看看
         Graphics2D g2 = (Graphics2D) bg.getGraphics();
         //画上各个元素，这里Images按文件名排序
@@ -354,7 +362,6 @@ public class ImgUtil {
         g2.drawImage(get("bpBanner.png"), 0, 0, null);
         //Rank
         g2.drawImage(get("ranking-" + score.Grade() + ".png").getScaledInstance(get("ranking-" + score.Grade() + ".png").getWidth(), get("ranking-" + score.Grade() + ".png").getHeight(), Image.SCALE_SMOOTH), 1131 - 245, 341 - 242, null);
-
         //FC
         if (score.isPerfect()) {
             g2.drawImage(get("ranking-perfect.png"), 296 - 30, 675 - 55, null);
@@ -455,20 +462,7 @@ public class ImgUtil {
             }
             //画上结尾的x
             g2.drawImage(get("score-x.png").getScaledInstance(40, 51, Image.SCALE_SMOOTH), 37 * count0.length + 455 - 8, 470 - 55, null);
-
-            if (oppaiResult != null) {
-//                //进度条
-//                if (score.getRank().equals("F")) {
-//                    int progress = 300 * (score.getCount50() + score.Count100() + score.Count300() + score.CountMiss())
-//                            / (oppaiResult.getNumCircles() + oppaiResult.getNumSliders() + oppaiResult.getNumSpinners());
-//
-//                    //设置直线断点平滑
-//                    g2.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-//                    g2.setColor(Color.decode("#99cc31"));
-//                    g2.drawLine(262, 615, 262 + progress - 2, 615);
-//                    g2.setColor(Color.decode("#fe0000"));
-//                    g2.drawLine(262 + progress - 2, 615, 262 + progress, 753);
-//                }
+            if (ppResult != null) {
                 //底端PP面板，在oppai计算结果不是null的时候
                 //600,700 570 700
                 g2.drawImage(get("ppBanner.png"), 570, 705, null);
@@ -495,22 +489,22 @@ public class ImgUtil {
 //                    这个插件的制作者都没想到能有四位数pp
 //                    【中军】skystaR<rize@pending.moe>  13:31:05
 //                    @活泼花猫
-                    if (oppaiResult.getPp() > 1000) {
-                        g2.drawString(String.valueOf(Math.round(oppaiResult.getPp())), 582, 753);
+                    if (ppResult.getPp() > 1000) {
+                        g2.drawString(String.valueOf(Math.round(ppResult.getPp())), 582, 753);
                     } else {
-                        if (String.valueOf(Math.round(oppaiResult.getPp())).contains("1")) {
-                            g2.drawString(String.valueOf(Math.round(oppaiResult.getPp())), 607, 753);
+                        if (String.valueOf(Math.round(ppResult.getPp())).contains("1")) {
+                            g2.drawString(String.valueOf(Math.round(ppResult.getPp())), 607, 753);
                         } else {
-                            g2.drawString(String.valueOf(Math.round(oppaiResult.getPp())), 592, 753);
+                            g2.drawString(String.valueOf(Math.round(ppResult.getPp())), 592, 753);
                         }
                     }
 
                 }
                 g2.setFont(new Font("Gayatri", Font.PLAIN, 48));
-                g2.drawString(String.valueOf(Math.round(oppaiResult.getAimPp())), 834, 758);//834 753 834 758
-                g2.drawString(String.valueOf(Math.round(oppaiResult.getSpeedPp())), 932, 758);//925 753 932 758
-                g2.drawString(String.valueOf(Math.round(oppaiResult.getAccPp())), 1030, 758);//1015 753 1030 758
-                g2.drawString(String.valueOf(Math.round(oppaiResult.getMaxPP())), 1120, 758);//1102 753 1120 758
+                g2.drawString(String.valueOf(Math.round(ppResult.getPp_aim())), 834, 758);//834 753 834 758
+                g2.drawString(String.valueOf(Math.round(ppResult.getPp_speed())), 932, 758);//925 753 932 758
+                g2.drawString(String.valueOf(Math.round(ppResult.getPp_acc())), 1030, 758);//1015 753 1030 758
+                g2.drawString(String.valueOf(Math.round(ppResult.getMax_pp())), 1120, 758);//1102 753 1120 758
             }
         }
         //TODO 其他模式，但是找不到素材了.jpg
@@ -556,32 +550,10 @@ public class ImgUtil {
         g2.drawString(beatmap.getArtist() + " - " + beatmap.getTitle() + " [" + beatmap.getVersion() + "]", 7, 26);
         g2.setFont(new Font("Aller", Font.PLAIN, 21));
         g2.drawString("Beatmap by " + beatmap.getCreator(), 7, 52);
-        g2.drawString("Played by " + userName + " on " + DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(ZoneId.of("UTC-8")).format(score.date().toInstant().plusSeconds(86400)) + ".", 7, 74);
-
-
+        g2.setFont(new Font("Microsoft YaHei", Font.PLAIN, 21));
+        g2.drawString("Played by " + userName + " on " + DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(ZoneId.of("UTC-8")).format(score.date().plusSeconds(86400L)) + ".", 7, 74);
         g2.dispose();
-
         return drawImage(bg, USHORT_555_RGB_PNG);
-    }
-
-
-    /**
-     * 简单的复制一份图片……
-     */
-    private BufferedImage getCopyImage(BufferedImage bi) {
-//        return bi.getSubimage(0, 0, bi.getWidth(), bi.getHeight());
-
-        ColorModel cm = bi.getColorModel();
-        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-        WritableRaster raster = bi.copyData(null);
-        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
-        //这他妈不就是自己重写了getSubimage方法吗……为什么getSubimage返回的是原图，这个就能复制一份woc
-        //不采用这套方案（会抹掉透明通道
-//        BufferedImage b = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.SCALE_SMOOTH);
-//        Graphics g = b.getGraphics();
-//        g.drawImage(source, 0, 0, null);
-//        g.dispose();
-//        return b;
     }
 
     /**
@@ -596,7 +568,6 @@ public class ImgUtil {
         g2.setFont(new Font(font, Font.PLAIN, size));
         //指定坐标
         g2.drawString(text, x, y);
-
     }
 
     /**
@@ -605,7 +576,7 @@ public class ImgUtil {
      * @param img the img
      * @return the string
      */
-    public String drawImage(BufferedImage img, CompressLevelEnum level) {
+    public static String drawImage(BufferedImage img, CompressLevelEnum level) {
         BufferedImage result = img;
         switch (level) {
             case 不压缩:
@@ -617,7 +588,7 @@ public class ImgUtil {
                     byte[] imgBytes = out.toByteArray();
                     return Base64.getEncoder().encodeToString(imgBytes);
                 } catch (IOException e) {
-                    Main.logger.error(e.getMessage());
+                    logger.error("处理图片失败:{}", e.getLocalizedMessage(), e);
                     return null;
                 }
             case USHORT_555_RGB_PNG:
@@ -635,18 +606,61 @@ public class ImgUtil {
             byte[] imgBytes = out.toByteArray();
             return Base64.getEncoder().encodeToString(imgBytes);
         } catch (IOException e) {
-            Main.logger.error(e.getMessage());
+            logger.error("处理图片失败,无法写入:{}", e.getLocalizedMessage(), e);
             return null;
         }
     }
 
-    private BufferedImage obtainBg(File bgFile) {
+    private static BufferedImage obtainBg(File bgFile) {
         try {
             BufferedImage bg = ImageIO.read(bgFile);
-            return Main.banchoApi.resizeImg(bg, 1366, 768);
+            return resizeImg(bg, 1366, 768);
         } catch (IOException e) {
-            Main.logger.error("读取图片失败", e);
+            logger.error("读取图片失败:{}", e.getLocalizedMessage(), e);
         }
         return null;
+    }
+
+    /**
+     * 让图片肯定不会变形，但是会切掉东西的拉伸
+     *
+     * @param bg     the bg
+     * @param weight the weight
+     * @param height the height
+     * @return the buffered image
+     */
+    public static BufferedImage resizeImg(BufferedImage bg, Integer weight, Integer height) {
+        BufferedImage resizedBG;
+        //获取bp原分辨率，将宽拉到1366，然后算出高，减去768除以二然后上下各减掉这部分
+        int resizedWeight = weight;
+        int resizedHeight = (int) Math.ceil((float) bg.getHeight() / bg.getWidth() * weight);
+        int heightDiff = ((resizedHeight - height) / 2);
+        int widthDiff = 0;
+        //如果算出重画之后的高<768(遇到金盏花这种特别宽的)
+        if (resizedHeight < height) {
+            resizedWeight = (int) Math.ceil((float) bg.getWidth() / bg.getHeight() * height);
+            resizedHeight = height;
+            heightDiff = 0;
+            widthDiff = ((resizedWeight - weight) / 2);
+        }
+        //把BG横向拉到1366;
+        //忘记在这里处理了
+        BufferedImage resizedBGTmp = new BufferedImage(resizedWeight, resizedHeight, bg.getType());
+        Graphics2D g = resizedBGTmp.createGraphics();
+        g.drawImage(bg.getScaledInstance(resizedWeight, resizedHeight, Image.SCALE_SMOOTH), 0, 0, resizedWeight, resizedHeight, null);
+        g.dispose();
+
+        //切割图片
+        resizedBG = new BufferedImage(weight, height, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < weight; x++) {
+            //这里之前用了原bg拉伸之前的分辨率，难怪报错
+            for (int y = 0; y < height; y++) {
+                resizedBG.setRGB(x, y, resizedBGTmp.getRGB(x + widthDiff, y + heightDiff));
+            }
+        }
+        //刷新掉bg以及临时bg的缓冲，将其作废
+        bg.flush();
+        resizedBGTmp.flush();
+        return resizedBG;
     }
 }

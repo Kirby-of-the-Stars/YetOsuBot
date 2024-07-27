@@ -1,5 +1,7 @@
 package cn.day.kbcplugin.osubot.enums;
 
+import com.mybatisflex.annotation.EnumValue;
+
 public enum BeatmapStatus {
 
     RANKED(1,"ranked"),
@@ -12,6 +14,11 @@ public enum BeatmapStatus {
     BeatmapStatus(int index, String name) {
         this.index = index;
         this.name = name;
+    }
+
+    @EnumValue
+    public int getIndex(){
+        return index;
     }
 
     public static boolean isOnline(int index){

@@ -1,47 +1,43 @@
 package cn.day.kbcplugin.osubot;
 
-import cn.day.kbcplugin.osubot.api.*;
-import cn.day.kbcplugin.osubot.commands.CommandInit;
-import cn.day.kbcplugin.osubot.dao.AccountDao;
-import cn.day.kbcplugin.osubot.dao.BeatMapDao;
-import cn.day.kbcplugin.osubot.dao.UserDao;
+import cn.day.kbcplugin.osubot.api.APIHandler;
+import cn.day.kbcplugin.osubot.api.LegacyBanchoAPI;
+import cn.day.kbcplugin.osubot.api.RustOsuPPCalculator;
+import cn.day.kbcplugin.osubot.api.SBApi;
+import cn.day.kbcplugin.osubot.commands.*;
+import cn.day.kbcplugin.osubot.dao.AccountMapper;
+import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.utils.ConfigTool;
 import cn.day.kbcplugin.osubot.utils.ImgUtil;
-import cn.day.kbcplugin.osubot.utils.ScoreUtil;
-import cn.hutool.db.ds.DSFactory;
-import cn.hutool.log.LogFactory;
-import cn.hutool.log.dialect.slf4j.Slf4jLogFactory;
-import cn.hutool.setting.Setting;
+import com.mybatisflex.core.MybatisFlexBootstrap;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.dromara.hutool.setting.Setting;
 import org.slf4j.Logger;
 import snw.jkook.config.file.FileConfiguration;
 import snw.jkook.plugin.BasePlugin;
+import snw.kookbc.impl.command.litecommands.LiteKookFactory;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.zip.ZipFile;
 
 public class Main extends BasePlugin {
 
     public static Logger logger;
-    public static DataSource ds;
     public static FileConfiguration config;
     public static Main instance;
     public static File rootPath;//插件的数据根目录
     public static File imgsPath;//用来放资源图片文件夹的目录
     public static File BeatMapsPath;
-    public static BanchoAPI banchoApi;
-    public static ScoreUtil scoreUtil;
-    public static UserDao userDao;
-    public static ImgUtil imgUtil;
-    public static SayobotApi sayobotApi;
-    public static ppySbApi ppySbApi;
-    public static BeatMapDao beatMapDao;
-    public static AccountDao accountDao;
+    public static DataSource ds = null;
+    public static MybatisFlexBootstrap dbContext;
 
     @Override
     public void onLoad() {
-        LogFactory.setCurrentLogFactory(Slf4jLogFactory.class);
         instance = this;
         logger = getLogger();
         rootPath = getDataFolder();
@@ -51,51 +47,34 @@ public class Main extends BasePlugin {
             saveDefaultConfig();
         }
         try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
+            createFolder();//创建文件夹
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        File dbFile = new File(rootPath, "osubot.db");
-        createFolder();
-        boolean isNewDb = false;
-        if (!dbFile.exists()) {
-            logger.info("未找到数据库文件，开始创建数据库文件");
-            saveResource("osubot.db", true, false);
-            isNewDb = true;
+        boolean success = initDb();
+        if (!success) {
+            throw new RuntimeException("数据初始化失败!");
         }
-        if (imgsPath.exists() && imgsPath.isDirectory() && imgsPath.listFiles().length == 0) {
-            saveResources();
-        }
-
-        logger.info("开始加载数据库");
-        File dbSettingFile = new File(rootPath, "db.setting");
-        if (!dbSettingFile.exists()) {
-            saveResource("db.setting", false, false);
-            logger.info("载入默认的数据库配置文件");
-        }
-        Setting dbSetting = new Setting(dbSettingFile, StandardCharsets.UTF_8, false);
-        if (isNewDb) {
-            dbSetting.set("url", "jdbc:sqlite:" + dbFile.getAbsolutePath());
-            dbSetting.store();
-        }
-        ds = DSFactory.create(dbSetting).getDataSource();
-        ConfigTool.updateConfig();
-        logger.info("数据库加载完成");
     }
 
     @Override
     public void onEnable() {
         config = this.getConfig();
         logger.info("正在注册指令系统");
-        CommandInit.registerCommand(this);
-        logger.info("加载Rosu-pp-native库");
-        ROSU_PP.init();
-        loadInstance();
+        AccountMapper accountMapper = dbContext.getMapper(AccountMapper.class);
+        UserInfoMapper userInfoMapper = dbContext.getMapper(UserInfoMapper.class);
+        APIHandler.setLegacyBanchoAPI(new LegacyBanchoAPI(APIKey.KEY));//TODO test
+        APIHandler.setSbApi(new SBApi());
+        APIHandler.setMapInfoProvider(APIHandler.getLegacyBanchoAPI());
+        LiteKookFactory.builder(this).commands(new BindAccount(accountMapper, userInfoMapper), new UnBind(accountMapper, userInfoMapper), new SetMode(accountMapper), new SetServer(accountMapper),new Recent(accountMapper,userInfoMapper)).build();
+        logger.info("加载Rosu-pp库");
+        RustOsuPPCalculator.init();
+        ImgUtil.Init();
     }
 
     @Override
     public void onDisable() {
-        saveConfig(); /* 4 */
+        saveConfig();
         logger.info("插件卸载完成");
     }
 
@@ -111,13 +90,13 @@ public class Main extends BasePlugin {
         }
     }
 
-    private void createFolder() {
+    private void createFolder() throws IOException {
         //创建素材文件夹
         imgsPath = new File(rootPath, "images");
         if (!imgsPath.exists()) {
             boolean success = imgsPath.mkdirs();
             if (!success) {
-                throw new RuntimeException("create images folder fail");
+                throw new IOException("create images folder fail");
             }
         }
         //创建地图文件夹
@@ -125,20 +104,53 @@ public class Main extends BasePlugin {
         if (!BeatMapsPath.exists()) {
             boolean success = BeatMapsPath.mkdirs();
             if (!success) {
-                throw new RuntimeException("create maps folder fail");
+                throw new IOException("create maps folder fail");
             }
         }
     }
 
-    private void loadInstance() {
-        banchoApi = new BanchoAPI();
-        scoreUtil = new ScoreUtil(banchoApi);
-        imgUtil = new ImgUtil(banchoApi, scoreUtil);
-        userDao = new UserDao(ds);
-        sayobotApi = new SayobotApi();
-        ppySbApi = new ppySbApi();
-        beatMapDao = new BeatMapDao(ds);
-        accountDao = new AccountDao(ds);
+    private boolean initDb() {
+        logger.info("正在初始化数据库");
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            logger.error("无法加载sqlite驱动:{}", e.getLocalizedMessage(), e);
+            return false;
+        }
+        File dbFile = new File(rootPath, "osubot.db");
+        boolean isNewDb = false;
+        if (!dbFile.exists()) {
+            logger.info("未找到数据库文件，开始创建数据库文件");
+            saveResource("osubot.db", true, false);
+            isNewDb = true;
+        }
+        if (imgsPath.exists() && imgsPath.isDirectory() && imgsPath.listFiles().length == 0) {
+            saveResources();
+        }
+        File dbSettingFile = new File(rootPath, "db.setting");
+        if (!dbSettingFile.exists()) {
+            saveResource("db.setting", false, false);
+            logger.info("载入默认的数据库配置文件");
+        }
+        Setting dbSetting = new Setting(dbSettingFile, StandardCharsets.UTF_8, false);
+        if (isNewDb) {
+            String DbPath = dbFile.getAbsolutePath().replaceAll("\\\\","/");
+            dbSetting.set("url", "jdbc:sqlite:" + DbPath);
+            dbSetting.store();
+        }
+        BasicDataSource bds = new BasicDataSource();
+        bds.setDriverClassName(dbSetting.getStr("driver"));
+        bds.setUrl(dbSetting.getStr("url").replaceAll("/", Matcher.quoteReplacement(File.separator)));
+        ds = bds;
+        try {
+            Main.dbContext = MybatisFlexBootstrap.getInstance().setDataSource(Main.ds).addMapper(AccountMapper.class).addMapper(UserInfoMapper.class).start();
+        } catch (Exception e) {
+            logger.error("数据库初始化失败:{}", e.getLocalizedMessage(), e);
+            return false;
+        }
+        ConfigTool.updateConfig();
+        logger.info("数据库加载完成");
+        return true;
     }
 
     //需要图片的列表

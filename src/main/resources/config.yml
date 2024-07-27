@@ -1,10 +1,4 @@
-# Osu的api key
+# Osu的api v1 key
 # 用于获取用户成绩和用户信息
-# 申请APIKEY https://osu.ppy.sh/home/account/edit
-OSU_APIKEY: ''
-# osu账号
-# 用于下载地图
-Account: ''
-# osu密码
-# 用于下载地图
-AccountPwd: ''
+# 申请APIKEY https://osu.ppy.sh/home/account/edit#legacy-api
+OSU_LEGACY_APIKEY: ''
