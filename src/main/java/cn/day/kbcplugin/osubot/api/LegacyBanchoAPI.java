@@ -33,6 +33,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
 
     private final OkHttpClient client = new OkHttpClient();
     private static final String BASE_URL = "https://osu.ppy.sh/api";
+    private static final String AVATAR_URL = "https://a.ppy.sh";
     private static final Log logger = LogFactory.getLog("[Bancho Legacy API]");
     private final String apiKey;
 
@@ -131,6 +132,11 @@ public class LegacyBanchoAPI implements IAPIHandler {
             logger.error("API意外异常:{}", e.getLocalizedMessage(), e);
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public String getUserAvatar(String osuId) {
+        return StrUtil.format("{}/{}",AVATAR_URL,osuId);
     }
 
     @Override

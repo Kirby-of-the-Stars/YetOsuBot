@@ -1,7 +1,7 @@
 package cn.day.kbcplugin.osubot.commands;
 
 import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
-import cn.day.kbcplugin.osubot.model.card.ProfileCard;
+import cn.day.kbcplugin.osubot.card.ProfileCard;
 import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import com.mybatisflex.core.query.QueryChain;
 import dev.rollczi.litecommands.annotations.command.Command;
@@ -15,6 +15,7 @@ import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.jkook.message.component.card.MultipleCardComponent;
 import snw.kookbc.impl.command.litecommands.annotations.prefix.Prefix;
+import snw.kookbc.impl.entity.builder.CardBuilder;
 
 import java.util.List;
 
@@ -35,16 +36,20 @@ public class Profile {
     @Execute
     public void infoMe(@Context CommandSender commandSender, @Context Message message) {
         if (commandSender instanceof User sender) {
+            MultipleCardComponent card = null;
             try {
                 List<UserInfo> list = QueryChain.of(userInfoMapper)
                         .select()
                         .from(USER_INFO)
                         .where(USER_INFO.KOOK_ID.eq(sender.getId()))
                         .list();
-                MultipleCardComponent card = ProfileCard.build(list, sender.getName());
+                card = ProfileCard.build(list, sender.getName());
                 message.reply(card);
             } catch (Exception e) {
                 logger.warn("Kook发送消息失败:{}", e.getLocalizedMessage(), e);
+                if(card!=null){
+                    logger.warn("报错的卡片json:{}",CardBuilder.serialize(card));
+                }
                 message.reply("发送消息失败");
             }
         }

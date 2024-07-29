@@ -36,8 +36,10 @@ public class APIHandler {
         };
     }
 
-    public static byte[] getAvatar(ServerEnum server) {
-        //TODO todo getAvatar
-        return new byte[0];
+    public static String getAvatar(ServerEnum server,String osuId) {
+        return switch (server) {
+            case Bancho -> legacyBanchoAPI.getUserAvatar(osuId);
+            case ppySb -> sbApi.getUserAvatar(osuId);
+        };
     }
 }

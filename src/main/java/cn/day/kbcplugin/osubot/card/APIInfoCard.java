@@ -1,4 +1,4 @@
-package cn.day.kbcplugin.osubot.model.card;
+package cn.day.kbcplugin.osubot.card;
 
 import cn.day.kbcplugin.osubot.api.APIHandler;
 import org.dromara.hutool.core.text.StrUtil;

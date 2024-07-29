@@ -1,6 +1,6 @@
 package cn.day.kbcplugin.osubot.commands;
 
-import cn.day.kbcplugin.osubot.model.card.APIInfoCard;
+import cn.day.kbcplugin.osubot.card.APIInfoCard;
 import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;
 import dev.rollczi.litecommands.annotations.description.Description;

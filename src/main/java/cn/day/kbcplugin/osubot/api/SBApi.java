@@ -1,6 +1,7 @@
 package cn.day.kbcplugin.osubot.api;
 
 import cn.day.kbcplugin.osubot.api.base.IAPIHandler;
+import cn.day.kbcplugin.osubot.enums.CompressLevelEnum;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.model.api.sb.SbBeatmapInfo;
 import cn.day.kbcplugin.osubot.model.api.sb.SbScoreInfo;
@@ -9,6 +10,7 @@ import cn.day.kbcplugin.osubot.model.api.sb.SbUserState;
 import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
 import cn.day.kbcplugin.osubot.model.api.base.IScore;
 import cn.day.kbcplugin.osubot.model.api.base.IUserInfo;
+import cn.day.kbcplugin.osubot.utils.ImgUtil;
 import cn.day.kbcplugin.osubot.utils.URLBuilder;
 
 import okhttp3.*;
@@ -21,6 +23,8 @@ import org.dromara.hutool.json.JSONUtil;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -31,6 +35,7 @@ public class SBApi implements IAPIHandler {
 
     private final OkHttpClient client = new OkHttpClient();
     private static final String BASE_URL = "https://api.ppy.sb";
+    private static final String AVATAR_URL = "https://a.ppy.sb";
     private static final Log logger = LogFactory.getLog("[ppy.sb API]");
 
     @Nullable
@@ -131,6 +136,42 @@ public class SBApi implements IAPIHandler {
     }
 
     @Override
+    public String getUserAvatar(String osuId) {
+        return StrUtil.format("{}/{}",AVATAR_URL,osuId);
+    }
+
+
+    //base 64Method
+//    @Override
+//    public @Nullable String getUserAvatar(String osuId) {
+//        final String url = StrUtil.format("{}/{}",AVATAR_URL,osuId);
+//        try {
+//            Request request = URLBuilder.builder(url).buildWithGetRequest();
+//            try(Response response = client.newCall(request).execute()) {
+//                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+//                ResponseBody resBody = response.body();
+//                if (resBody == null || resBody.contentLength()==0) throw new IOException("Empty Response" + response);
+//                MediaType type = resBody.contentType();
+//                if(type==null){
+//                    //type is null ,but why?
+//                    logger.warn("contentType is null:{}",response);
+//                    type = MediaType.get("image/jpeg");//to default type
+//                }
+//                if(type.type().equals("image")){
+//                    return ImgUtil.drawImage(ImageIO.read(resBody.byteStream()), CompressLevelEnum.不压缩);
+//                }else {
+//                    logger.warn("contentType is not image:{}",type);
+//                    return null;
+//                }
+//            }
+//        } catch (IOException e) {
+//            logger.error("获取头像失败:{}",e.getLocalizedMessage(),e);
+//            //use default avatar
+//            return "https://img.kookapp.cn/assets/2024-07/24/RLVgNu7t6m04g04g.jpg";
+//        }
+//    }
+
+    @Override
     public String getName() {
         return "ppy.sbAPI";
     }
@@ -172,5 +213,7 @@ public class SBApi implements IAPIHandler {
             return resp;
         }
     }
+
+
 
 }

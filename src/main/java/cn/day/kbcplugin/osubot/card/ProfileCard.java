@@ -1,13 +1,16 @@
-package cn.day.kbcplugin.osubot.model.card;
+package cn.day.kbcplugin.osubot.card;
 
+import cn.day.kbcplugin.osubot.Main;
+import cn.day.kbcplugin.osubot.api.APIHandler;
 import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import org.dromara.hutool.core.text.StrUtil;
-import snw.jkook.message.component.MarkdownComponent;
+import snw.jkook.entity.abilities.Accessory;
 import snw.jkook.message.component.card.CardBuilder;
 import snw.jkook.message.component.card.MultipleCardComponent;
 import snw.jkook.message.component.card.Size;
 import snw.jkook.message.component.card.Theme;
 import snw.jkook.message.component.card.element.BaseElement;
+import snw.jkook.message.component.card.element.ImageElement;
 import snw.jkook.message.component.card.element.MarkdownElement;
 import snw.jkook.message.component.card.module.DividerModule;
 import snw.jkook.message.component.card.module.HeaderModule;
@@ -26,7 +29,6 @@ public class ProfileCard {
         builder.setSize(Size.LG);
         builder.addModule(new HeaderModule(name + "的账号如下:"));//title
         for (UserInfo userInfo : userInfos) {
-            //TODO getImage;
             List<BaseElement> fields = new ArrayList<>();
             //name
             fields.add(new MarkdownElement(StrUtil.format("**用户名**\n{}", userInfo.getUserName())));
@@ -35,10 +37,14 @@ public class ProfileCard {
             //mode
             fields.add(new MarkdownElement(StrUtil.format("**模式**\n{}", userInfo.getMode().getName())));
             Paragraph paragraph = new Paragraph(3, fields);
-            builder.addModule(new SectionModule(paragraph));
+            //avatar
+            String avatarUrl = Main.instance.getCore().getHttpAPI().uploadFile("pic", APIHandler.getAvatar(userInfo.getServer(), userInfo.getOsuId()));
+            ImageElement avatar = new ImageElement(avatarUrl,null,Size.SM,true);
+            builder.addModule(new SectionModule(paragraph,avatar, Accessory.Mode.LEFT));
             if (i + 1 != userInfos.size()) {
                 builder.addModule(DividerModule.INSTANCE);//add diver
             }
+            i++;
         }
         return builder.build();
     }

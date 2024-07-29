@@ -5,6 +5,7 @@ import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
 import cn.day.kbcplugin.osubot.model.api.base.IScore;
 import cn.day.kbcplugin.osubot.model.api.base.IUserInfo;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.units.qual.N;
 
 import java.util.List;
 
@@ -29,6 +30,14 @@ public interface IAPIHandler {
      */
     @Nullable
     List<? extends IScore> getTopNScores(String osuId, OsuModeEnum mode, int count);
+
+    /**
+     * 获取用户头像
+     * @param osuId osu id
+     * @return base64
+     */
+    @Nullable
+    String getUserAvatar(String osuId);
 
     /**
      * 返回API名字
