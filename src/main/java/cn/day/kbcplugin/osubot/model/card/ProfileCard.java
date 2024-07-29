@@ -29,11 +29,11 @@ public class ProfileCard {
             //TODO getImage;
             List<BaseElement> fields = new ArrayList<>();
             //name
-            fields.add(new MarkdownElement(StrUtil.format("**用户名**\\n{}", userInfo.getUserName())));
+            fields.add(new MarkdownElement(StrUtil.format("**用户名**\n{}", userInfo.getUserName())));
             //server
-            fields.add(new MarkdownElement(StrUtil.format("**服务器**\\n{}", userInfo.getServer().getName())));
+            fields.add(new MarkdownElement(StrUtil.format("**服务器**\n{}", userInfo.getServer().getName())));
             //mode
-            fields.add(new MarkdownElement(StrUtil.format("**模式**\\n{}", userInfo.getMode().getName())));
+            fields.add(new MarkdownElement(StrUtil.format("**模式**\n{}", userInfo.getMode().getName())));
             Paragraph paragraph = new Paragraph(3, fields);
             builder.addModule(new SectionModule(paragraph));
             if (i + 1 != userInfos.size()) {
