@@ -112,7 +112,7 @@ public class SBApi implements IAPIHandler {
         final String url = StrUtil.format("{}{}", BASE_URL, "/v1/get_player_scores");
         try {
             HttpUrl httpUrl = URLBuilder.builder(url)
-                    .put("scope", "recent")
+                    .put("scope", "best")
                     .put("id", osuId)
                     .put("mode", String.valueOf(mode.index))
                     .put("limit", "1")

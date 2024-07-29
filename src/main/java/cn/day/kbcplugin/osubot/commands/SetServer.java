@@ -7,6 +7,7 @@ import cn.day.kbcplugin.osubot.model.entity.Account;
 import dev.rollczi.litecommands.annotations.argument.Arg;
 import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;
+import dev.rollczi.litecommands.annotations.description.Description;
 import dev.rollczi.litecommands.annotations.execute.Execute;
 import snw.jkook.command.CommandSender;
 import snw.jkook.entity.User;
@@ -15,6 +16,7 @@ import snw.kookbc.impl.command.litecommands.annotations.prefix.Prefix;
 
 @Command(name = "setserver")
 @Prefix("/")
+@Description("设置默认服务器,用法/setserver server,例子:/setserver ppysb")
 public class SetServer {
 
     private final AccountMapper accountMapper;

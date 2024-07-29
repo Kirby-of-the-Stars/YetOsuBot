@@ -15,7 +15,7 @@ import org.dromara.hutool.log.LogFactory;
 import java.io.File;
 import java.io.IOException;
 
-public class ChimuAPI  implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
+public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
 
     public static final String BASE_URL = "https://catboy.best";
     public static final String BG_URL = "/preview/background/";
@@ -25,7 +25,7 @@ public class ChimuAPI  implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
 
     @Override
     public boolean downloadMap(String beatmapId, File target) {
-        final String url = StrUtil.format("{}{}{}",BASE_URL,"/osu/",beatmapId);
+        final String url = StrUtil.format("{}{}{}", BASE_URL, "/osu/", beatmapId);
         try {
             HttpUrl httpUrl = URLBuilder.builder(url).build();
             Request request = new Request.Builder().url(httpUrl).get().build();
@@ -34,13 +34,13 @@ public class ChimuAPI  implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                 ResponseBody resBody = response.body();
                 if (resBody == null) throw new IOException("Empty Response" + response);
                 MediaType contentType = resBody.contentType();
-                if(contentType == null) throw new IOException("Empty Response Null Content Type" + response);
-                if(contentType.equals(MediaType.parse("application/json"))) {
+                if (contentType == null) throw new IOException("Empty Response Null Content Type" + response);
+                if (contentType.equals(MediaType.parse("application/json"))) {
                     String error = JSONUtil.parseObj(resBody.string()).getStr("error");
-                    throw new IOException("Bad Request:"+error);
+                    throw new IOException("Bad Request:" + error);
                 }
                 FileUtil.touch(target);
-                FileUtil.writeBytes(resBody.bytes(),target);
+                FileUtil.writeBytes(resBody.bytes(), target);
                 return true;
             }
         } catch (IOException e) {
@@ -61,7 +61,7 @@ public class ChimuAPI  implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
 
     @Override
     public File downloadBG(String beatmapId, File target) {
-        final String url = StrUtil.format("{}{}{}",BASE_URL,BG_URL,beatmapId);
+        final String url = StrUtil.format("{}{}{}", BASE_URL, BG_URL, beatmapId);
         try {
             HttpUrl httpUrl = URLBuilder.builder(url).build();
             Request request = new Request.Builder().url(httpUrl).get().build();
@@ -70,18 +70,21 @@ public class ChimuAPI  implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                 ResponseBody resBody = response.body();
                 if (resBody == null) throw new IOException("Empty Response" + response);
                 MediaType contentType = resBody.contentType();
-                if(contentType == null) throw new IOException("Empty Response Null Content Type" + response);
-                if(contentType.equals(MediaType.parse("application/json"))) {
+                //okhttp 把非标准的contentType 判断为了null
+                if (contentType == null && resBody.contentLength() == 0)
+                    throw new IOException("Empty Response Null Content Type" + response);
+                else if (MediaType.get("application/json").equals(contentType)) {
                     String error = JSONUtil.parseObj(resBody.string()).getStr("error");
-                    throw new IOException("Bad Request:"+error);
+                    throw new IOException("Bad Request:" + error);
                 }
                 // observer which is none png file
-                if(!contentType.equals(MediaType.parse("image/png"))) {
+                // current : jgp "(Nico" (not stand type)
+                if (contentType != null && !MediaType.get("image/png").equals(contentType)) {
                     logger.warn("some file doesn't support image/png :{}", contentType);
                 }
-                target = new File(target,beatmapId + "-bg"+".png");
+                target = new File(target, beatmapId + "-bg" + ".png");
                 FileUtil.touch(target);
-                FileUtil.writeBytes(resBody.bytes(),target);
+                FileUtil.writeBytes(resBody.bytes(), target);
                 return target;
             }
         } catch (IOException e) {
