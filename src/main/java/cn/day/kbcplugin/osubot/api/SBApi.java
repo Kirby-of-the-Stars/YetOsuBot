@@ -120,7 +120,7 @@ public class SBApi implements IAPIHandler {
                     .put("scope", "best")
                     .put("id", osuId)
                     .put("mode", String.valueOf(mode.index))
-                    .put("limit", "1")
+                    .put("limit", String.valueOf(count))
                     .put("include_loved", "true")
                     .put("include_failed", "true")
                     .build();

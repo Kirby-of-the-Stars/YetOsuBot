@@ -14,13 +14,18 @@ import org.dromara.hutool.log.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
 
     public static final String BASE_URL = "https://catboy.best";
     public static final String BG_URL = "/preview/background/";
     private static final String API_VERSION = "/api/v2";
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .readTimeout(30L, TimeUnit.SECONDS)//add readTimeout limit for resource download
+            .build();
     private static final Log logger = LogFactory.getLog("[Chimu API]");
 
     @Override
@@ -58,6 +63,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
         return "Chimu API";
     }
 
+    private static final List<String> subTypeList = Arrays.asList("png", "jpeg");
 
     @Override
     public File downloadBG(String beatmapId, File target) {
@@ -77,12 +83,25 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                     String error = JSONUtil.parseObj(resBody.string()).getStr("error");
                     throw new IOException("Bad Request:" + error);
                 }
+                if (contentType == null) {
+                    //add default type
+                    contentType = MediaType.get("image/png");
+                }
+                //if it has not image type?
+                String type = contentType.type();
+                if (!type.equals("image")) {
+                    logger.warn("{} is not image type,return null result", type);
+                    return null;
+                }
                 // observer which is none png file
                 // current : jgp "(Nico" (not stand type)
-                if (contentType != null && !MediaType.get("image/png").equals(contentType)) {
-                    logger.warn("some file doesn't support image/png :{}", contentType);
+                String prefix;
+                prefix = contentType.subtype();
+                if (!subTypeList.contains(prefix)) {
+                    logger.warn("{} dit not png or jpeg,try to use png", prefix);
+                    prefix = "png";
                 }
-                target = new File(target, beatmapId + "-bg" + ".png");
+                target = new File(target, beatmapId + "-bg" + "." + prefix);
                 FileUtil.touch(target);
                 FileUtil.writeBytes(resBody.bytes(), target);
                 return target;
