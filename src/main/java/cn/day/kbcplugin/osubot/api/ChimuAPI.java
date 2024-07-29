@@ -3,6 +3,7 @@ package cn.day.kbcplugin.osubot.api;
 import cn.day.kbcplugin.osubot.Main;
 import cn.day.kbcplugin.osubot.api.base.IBeatMapBGProvider;
 import cn.day.kbcplugin.osubot.api.base.IBeatmapDownLoadProvider;
+import cn.day.kbcplugin.osubot.interceptor.RetryInterceptor;
 import cn.day.kbcplugin.osubot.utils.URLBuilder;
 import okhttp3.*;
 import org.dromara.hutool.core.io.file.FileUtil;
@@ -24,7 +25,8 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
     public static final String BG_URL = "/preview/background/";
     private static final String API_VERSION = "/api/v2";
     private final OkHttpClient client = new OkHttpClient.Builder()
-            .readTimeout(30L, TimeUnit.SECONDS)//add readTimeout limit for resource download
+            .readTimeout(10L, TimeUnit.SECONDS)//add readTimeout limit for resource download
+            .addInterceptor(new RetryInterceptor(3))
             .build();
     private static final Log logger = LogFactory.getLog("[Chimu API]");
 
@@ -63,7 +65,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
         return "Chimu API";
     }
 
-    private static final List<String> subTypeList = Arrays.asList("png", "jpeg");
+    private static final List<String> subTypeList = Arrays.asList("png", "jpeg","jpg");
 
     @Override
     public File downloadBG(String beatmapId, File target) {

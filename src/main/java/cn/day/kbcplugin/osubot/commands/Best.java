@@ -92,7 +92,7 @@ public class Best {
                 }
                 indexStr = indexStr.replace("#", "");
                 int index = Integer.parseInt(indexStr);
-                if (index <= 0 || index >= 20) {
+                if (index <= 0 || index > 20) {
                     message.reply("范围太大了呀,可选范围1~20");
                     return;
                 }
