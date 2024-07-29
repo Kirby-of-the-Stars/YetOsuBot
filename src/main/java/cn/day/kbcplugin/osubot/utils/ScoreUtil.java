@@ -6,7 +6,7 @@ import cn.day.kbcplugin.osubot.model.api.OsuMap;
 import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
 import cn.day.kbcplugin.osubot.model.api.base.IScore;
 import cn.day.kbcplugin.osubot.model.api.base.Mods;
-import cn.day.kbcplugin.osubot.pojo.osu.PPResult;
+import cn.day.kbcplugin.osubot.model.api.PPResult;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
 

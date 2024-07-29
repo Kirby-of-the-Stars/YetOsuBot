@@ -7,7 +7,7 @@ import cn.day.kbcplugin.osubot.model.api.base.IScore;
 import cn.day.kbcplugin.osubot.model.api.base.IUserInfo;
 import cn.day.kbcplugin.osubot.model.entity.Account;
 import cn.day.kbcplugin.osubot.model.api.base.Mods;
-import cn.day.kbcplugin.osubot.pojo.osu.PPResult;
+import cn.day.kbcplugin.osubot.model.api.PPResult;
 import org.dromara.hutool.core.io.file.FileUtil;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;

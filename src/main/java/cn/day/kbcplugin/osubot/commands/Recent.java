@@ -41,7 +41,9 @@ import static cn.day.kbcplugin.osubot.model.entity.table.UserInfoTableDef.USER_I
 @Prefix("/")
 @Description("获取最近24h内的成绩 用法:/pr [mode] [server] mode server为可选")
 public class Recent {
+
     //getCore().getUnsafe().getEmoji("✅");
+
     private final AccountMapper accountMapper;
     private final UserInfoMapper userInfoMapper;
 
@@ -61,7 +63,6 @@ public class Recent {
             @Flag("-lazer") boolean lazerMode
     ) {
         if (commandSender instanceof User sender) {
-            message.sendReaction(Main.instance.getCore().getUnsafe().getEmoji("✅"));
             String kookId = sender.getId();
             Account account = accountMapper.selectOneById(kookId);
             if (account == null) {
@@ -88,25 +89,40 @@ public class Recent {
                     server = argServer;
                 }
             }
+            message.sendReaction(Main.instance.getCore().getUnsafe().getEmoji("✅"));
             //query
             List<UserInfo> dbUserInfos = QueryChain.of(userInfoMapper)
                     .select()
                     .from(USER_INFO)
                     .where(USER_INFO.KOOK_ID.eq(kookId).and(USER_INFO.SERVER.eq(server)))
                     .list();
-            if(dbUserInfos==null || dbUserInfos.isEmpty()){
+            if (dbUserInfos == null || dbUserInfos.isEmpty()) {
                 message.reply("你还未绑定任何osu账号,请使用/bind 绑定");
                 return;
             }
-            String osuId = dbUserInfos.getFirst().getOsuId();
-            IUserInfo userInfo = APIHandler.getAPI(server).getUserInfo(osuId, mode);
-            if (userInfo == null) {
-                message.reply("osu账号数据不存在");
+            String osuId;
+            IUserInfo userInfo;
+            try {
+                osuId = dbUserInfos.getFirst().getOsuId();
+                userInfo = APIHandler.getAPI(server).getUserInfo(osuId, mode);
+                if (userInfo == null) {
+                    message.reply("osu账号数据不存在");
+                    return;
+                }
+            } catch (Exception e) {
+                logger.warn("获取用户信息流程失败:{}", e.getLocalizedMessage(), e);
+                message.reply("无法获取用户信息");
                 return;
             }
             IScore score = null;
             if (!lazerMode) {
-                score = APIHandler.getAPI(server).getRecentScore(osuId, mode);
+                try {
+                    score = APIHandler.getAPI(server).getRecentScore(osuId, mode);
+                } catch (Exception e) {
+                    logger.warn("获取用户成绩流程失败:{}", e.getLocalizedMessage(), e);
+                    message.reply("无法获取成绩数据");
+                    return;
+                }
             } else {
                 //TODO lazer score;
                 message.reply("Lazer 成绩施工中....");
@@ -116,7 +132,14 @@ public class Recent {
                 message.reply("无法查询到成绩");
                 return;
             }
-            IBeatmap beatmap = APIHandler.getMapInfoProvider().getBeatmap(String.valueOf(score.beatmapId()), null);
+            IBeatmap beatmap;
+            try {
+                beatmap = APIHandler.getMapInfoProvider().getBeatmap(String.valueOf(score.beatmapId()), null);
+            } catch (Exception e) {
+                message.reply("获取地图信息失败");
+                logger.warn("获取铺面数据流程失败:{}", e.getLocalizedMessage(), e);
+                return;
+            }
             String base64;
             try {
                 base64 = ImgUtil.drawResult(userInfo.getUserName(), score, beatmap, mode.index);
@@ -132,11 +155,16 @@ public class Recent {
             CardBuilder builder = new CardBuilder();
             builder.setTheme(Theme.SUCCESS).setSize(Size.LG);
             byte[] base64File = Base64.getDecoder().decode(base64);
-            String fileName = message.getId() + "recent" + "-" + System.currentTimeMillis() + ".png";
-            String url = Main.instance.getCore().getHttpAPI().uploadFile(fileName, base64File);
-            builder.addModule(new ContainerModule.Builder()
-                    .add(new ImageElement(url, null, Size.LG, true)).build());
-            message.reply(builder.build());
+            try {
+                String fileName = message.getId() + "recent" + "-" + System.currentTimeMillis() + ".png";
+                String url = Main.instance.getCore().getHttpAPI().uploadFile(fileName, base64File);
+                builder.addModule(new ContainerModule.Builder()
+                        .add(new ImageElement(url, null, Size.LG, true)).build());
+                message.reply(builder.build());
+            } catch (Exception e) {
+                message.reply("无法发出成绩,可能是被Kook拦截了");
+                logger.warn("获取铺面数据流程失败:{}", e.getLocalizedMessage(), e);
+            }
         }
     }
 }

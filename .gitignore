@@ -28,3 +28,4 @@ nbdist/
 ### Mac files ###
 *.DS_Store
 /.gradle/
+src/main/java/cn/day/kbcplugin/osubot/APIKey.java

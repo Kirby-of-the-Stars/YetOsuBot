@@ -76,9 +76,16 @@ public class BindAccount {
                         }
                     }
                 }
-                IUserInfo userInfo = APIHandler.getAPI(server).getUserInfo(osuId, mode);
-                if (userInfo == null) {
+                IUserInfo userInfo;
+                try {
+                   userInfo = APIHandler.getAPI(server).getUserInfo(osuId, mode);
+                    if (userInfo == null) {
+                        message.reply("无法查询到Osu账号信息");
+                        return;
+                    }
+                }catch (Exception e){
                     message.reply("无法查询到Osu账号信息");
+                    logger.warn("获取账号流程出错:{}",e.getLocalizedMessage(),e);
                     return;
                 }
                 //mulit userinfo

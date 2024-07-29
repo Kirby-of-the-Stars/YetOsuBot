@@ -2,8 +2,7 @@ package cn.day.kbcplugin.osubot.api;
 
 import cn.day.kbcplugin.osubot.model.api.OsuMap;
 import cn.day.kbcplugin.osubot.model.api.base.Mods;
-import cn.day.kbcplugin.osubot.pojo.osu.PPResult;
-import org.dromara.hutool.core.io.resource.Resource;
+import cn.day.kbcplugin.osubot.model.api.PPResult;
 import org.dromara.hutool.core.lang.Assert;
 import org.dromara.hutool.json.JSONUtil;
 import org.junit.jupiter.api.Test;

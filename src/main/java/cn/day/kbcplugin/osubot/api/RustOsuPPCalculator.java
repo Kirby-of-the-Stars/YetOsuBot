@@ -3,7 +3,7 @@ package cn.day.kbcplugin.osubot.api;
 import cn.day.kbcplugin.osubot.Main;
 import cn.day.kbcplugin.osubot.api.library.RosuPPNative;
 import cn.day.kbcplugin.osubot.model.api.OsuMap;
-import cn.day.kbcplugin.osubot.pojo.osu.PPResult;
+import cn.day.kbcplugin.osubot.model.api.PPResult;
 import com.sun.jna.Native;
 
 import java.io.File;

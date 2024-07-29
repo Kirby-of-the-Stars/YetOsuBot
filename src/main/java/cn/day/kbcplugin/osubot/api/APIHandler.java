@@ -35,4 +35,9 @@ public class APIHandler {
             case ppySb -> sbApi;
         };
     }
+
+    public static byte[] getAvatar(ServerEnum server) {
+        //TODO todo getAvatar
+        return new byte[0];
+    }
 }

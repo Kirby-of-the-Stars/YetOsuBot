@@ -66,7 +66,15 @@ public class Main extends BasePlugin {
         APIHandler.setLegacyBanchoAPI(new LegacyBanchoAPI(APIKey.KEY));//TODO test
         APIHandler.setSbApi(new SBApi());
         APIHandler.setMapInfoProvider(APIHandler.getLegacyBanchoAPI());
-        LiteKookFactory.builder(this).commands(new BindAccount(accountMapper, userInfoMapper), new UnBind(accountMapper, userInfoMapper), new SetMode(accountMapper), new SetServer(accountMapper),new Recent(accountMapper,userInfoMapper)).build();
+        LiteKookFactory.builder(this).commands(
+                new BindAccount(accountMapper, userInfoMapper),
+                new UnBind(accountMapper, userInfoMapper),
+                new SetMode(accountMapper),
+                new SetServer(accountMapper),
+                new Recent(accountMapper,userInfoMapper),
+                new APIInfo(),new Best(accountMapper,userInfoMapper),
+                new Profile(userInfoMapper)
+        ).build();
         logger.info("加载Rosu-pp库");
         RustOsuPPCalculator.init();
         ImgUtil.Init();

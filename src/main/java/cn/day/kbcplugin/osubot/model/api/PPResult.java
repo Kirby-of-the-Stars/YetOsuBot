@@ -1,4 +1,4 @@
-package cn.day.kbcplugin.osubot.pojo.osu;
+package cn.day.kbcplugin.osubot.model.api;
 
 import com.sun.jna.Structure;
 
