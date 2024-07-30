@@ -336,7 +336,7 @@ public class ImgUtil {
      * @return base64String
      */
     public static String drawResult(String userName, IScore score, IBeatmap beatmap, int mode) {
-        String accS = new DecimalFormat("###.00").format((double) score.Acc());
+        String accS = ScoreUtil.genAccString(score,mode);
         Map<String, String> mods = Mods.convertModToHashMap(score.mods());
         //这个none是为了BP节省代码，在这里移除掉
         mods.remove("None");

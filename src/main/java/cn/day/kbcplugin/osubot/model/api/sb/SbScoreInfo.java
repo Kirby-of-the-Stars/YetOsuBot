@@ -159,4 +159,10 @@ public class SbScoreInfo implements IScore {
     public LocalDateTime date() {
         return playTime;
     }
+
+    @Override
+    public SbScoreInfo setMode(OsuModeEnum mode) {
+        this.mode = mode.ordinal();
+        return this;
+    }
 }

@@ -101,7 +101,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
                     .buildWithGetRequest();
             List<LegacyBanchoScore> result = getList(request, LegacyBanchoScore.class);
             if (result == null || result.isEmpty()) return null;
-            return result.getFirst();
+            return result.getFirst().setMode(mode);
         } catch (IOException e) {
             logger.error("获取铺面信息失败:{}", e.getLocalizedMessage(), e);
         } catch (JSONException e) {
@@ -120,10 +120,13 @@ public class LegacyBanchoAPI implements IAPIHandler {
             Request request = urlBuilder(url)
                     .put("u", osuId)
                     .put("m", String.valueOf(mode.index))
-                    .put("limit ", String.valueOf(count))
+                    .put("limit", String.valueOf(count))
                     .put("type", "id")
                     .buildWithGetRequest();
-            return getList(request, LegacyBanchoScore.class);
+            List<LegacyBanchoScore> scoreList = getList(request, LegacyBanchoScore.class);
+            if(scoreList == null || scoreList.isEmpty()) return null;
+            scoreList.forEach((s)->s.setMode(mode));
+            return scoreList;
         } catch (IOException e) {
             logger.error("获取成绩失败:{}", e.getLocalizedMessage(), e);
         } catch (JSONException e) {

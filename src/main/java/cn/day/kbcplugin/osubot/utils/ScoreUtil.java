@@ -7,6 +7,7 @@ import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
 import cn.day.kbcplugin.osubot.model.api.base.IScore;
 import cn.day.kbcplugin.osubot.model.api.base.Mods;
 import cn.day.kbcplugin.osubot.model.api.PPResult;
+import cn.day.kbcplugin.osubot.model.api.sb.SbScoreInfo;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
 
@@ -22,18 +23,20 @@ public class ScoreUtil {
     private static final Log logger = LogFactory.getLog("[Score Util]");
 
     public static String genAccString(IScore score, Integer mode) {
-        return new DecimalFormat("###.00").format(genAccDouble(score, mode));
+        double res = genAccDouble(score, mode);
+        if(res == 0.0) return "0.00";
+        return new DecimalFormat("###.00").format(res);
     }
 
     public static Double genAccDouble(IScore score, Integer mode) {
         return switch (mode) {
-            case 0 -> 100.0 * (6 * score.Count300() + 2 * score.Count100() + score.Count50())
+            case 0,4,8 -> 100.0 * (6 * score.Count300() + 2 * score.Count100() + score.Count50())
                       / (6 * (score.Count50() + score.Count100() + score.Count300() + score.CountMiss()));
-            case 1 ->
+            case 1,5 ->
                 //太鼓
                     100.0 * (2 * score.Count300() + score.Count100())
                     / (2 * (score.Count100() + score.Count300() + score.CountMiss()));
-            case 2 ->
+            case 2,6 ->
                 //ctb
                     100.0 * (score.Count50() + score.Count100() + score.Count300())
                     / (score.CountKatu() + score.Count50() + score.Count100() + score.Count300() + score.CountMiss());

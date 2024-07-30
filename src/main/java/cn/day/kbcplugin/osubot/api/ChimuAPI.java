@@ -1,6 +1,5 @@
 package cn.day.kbcplugin.osubot.api;
 
-import cn.day.kbcplugin.osubot.Main;
 import cn.day.kbcplugin.osubot.api.base.IBeatMapBGProvider;
 import cn.day.kbcplugin.osubot.api.base.IBeatmapDownLoadProvider;
 import cn.day.kbcplugin.osubot.interceptor.RetryInterceptor;
@@ -8,6 +7,8 @@ import cn.day.kbcplugin.osubot.utils.URLBuilder;
 import okhttp3.*;
 import org.dromara.hutool.core.io.file.FileUtil;
 import org.dromara.hutool.core.text.StrUtil;
+import org.dromara.hutool.http.client.engine.httpclient5.HttpClient5Engine;
+import org.dromara.hutool.http.meta.Method;
 import org.dromara.hutool.json.JSONException;
 import org.dromara.hutool.json.JSONUtil;
 import org.dromara.hutool.log.Log;
@@ -65,7 +66,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
         return "Chimu API";
     }
 
-    private static final List<String> subTypeList = Arrays.asList("png", "jpeg","jpg");
+    private static final List<String> subTypeList = Arrays.asList("png", "jpeg", "jpg");
 
     @Override
     public File downloadBG(String beatmapId, File target) {
@@ -73,6 +74,8 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
         try {
             HttpUrl httpUrl = URLBuilder.builder(url).build();
             Request request = new Request.Builder().url(httpUrl).get().build();
+            long current = System.currentTimeMillis();
+            logger.info("开始下载地图:{}", beatmapId);
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
                 ResponseBody resBody = response.body();
@@ -106,6 +109,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                 target = new File(target, beatmapId + "-bg" + "." + prefix);
                 FileUtil.touch(target);
                 FileUtil.writeBytes(resBody.bytes(), target);
+                logger.info("下载完成用时:{}s", TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - current));
                 return target;
             }
         } catch (IOException e) {
@@ -116,5 +120,19 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
             logger.error("API意外异常:{}", e.getLocalizedMessage(), e);
         }
         return null;
+    }
+
+    public File downloadBGWithHutool(String beatmapId, File target) {
+        final String url = StrUtil.format("{}{}{}", BASE_URL, BG_URL, beatmapId);
+        logger.info("开始下载地图:{}", beatmapId);
+        long current = System.currentTimeMillis();
+        org.dromara.hutool.http.client.Request request =
+                org.dromara.hutool.http.client.Request.of(url)
+                        .method(Method.GET);
+        org.dromara.hutool.http.client.Response response = request.send(new HttpClient5Engine());
+        FileUtil.touch(target);
+        FileUtil.writeBytes(response.bodyBytes(), target);
+        logger.info("下载地图完成，用时:{}", TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - current));
+        return target;
     }
 }

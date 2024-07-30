@@ -2,11 +2,13 @@ package cn.day.kbcplugin.osubot.model.api.bancho.legacy;
 
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.model.api.base.IScore;
+import cn.day.kbcplugin.osubot.utils.ScoreUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dromara.hutool.core.annotation.Alias;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
@@ -33,6 +35,8 @@ public class LegacyBanchoScore implements IScore {
     private String userId;
     private LocalDateTime date;
     private String rank;
+    //额外字段，需要手动指定
+    private OsuModeEnum mode;
 
     @Nullable
     @Override
@@ -52,7 +56,7 @@ public class LegacyBanchoScore implements IScore {
     @Nullable
     @Override
     public Float Acc() {
-        return 0f;
+        return BigDecimal.valueOf(ScoreUtil.genAccDouble(this,mode().index)).floatValue();
     }
     @Nullable
     @Override
@@ -128,7 +132,7 @@ public class LegacyBanchoScore implements IScore {
     @Nullable
     @Override
     public OsuModeEnum mode() {
-        return null;
+        return mode;
     }
 
     @Override
@@ -150,5 +154,11 @@ public class LegacyBanchoScore implements IScore {
     @Override
     public LocalDateTime date() {
         return date;
+    }
+
+    @Override
+    public LegacyBanchoScore setMode(OsuModeEnum mode) {
+        this.mode = mode;
+        return this;
     }
 }

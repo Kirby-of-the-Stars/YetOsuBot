@@ -29,5 +29,6 @@ public interface IScore {
     Long beatmapId();
     Long beatmapSetId();
     LocalDateTime date();
+    IScore setMode(OsuModeEnum mode);
 
 }
