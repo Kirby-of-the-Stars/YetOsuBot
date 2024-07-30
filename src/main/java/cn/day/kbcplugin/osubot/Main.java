@@ -18,12 +18,10 @@ import snw.jkook.plugin.BasePlugin;
 import snw.kookbc.impl.command.litecommands.LiteKookFactory;
 
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
-import java.util.zip.ZipFile;
 
 public class Main extends BasePlugin {
 
@@ -73,7 +71,8 @@ public class Main extends BasePlugin {
                 new SetServer(accountMapper),
                 new Recent(accountMapper,userInfoMapper),
                 new APIInfo(),new Best(accountMapper,userInfoMapper),
-                new Profile(userInfoMapper)
+                new Profile(userInfoMapper),
+                new SearchMap()
         ).build();
         logger.info("加载Rosu-pp库");
         RustOsuPPCalculator.init();

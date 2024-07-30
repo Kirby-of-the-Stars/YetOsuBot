@@ -2,9 +2,12 @@ package cn.day.kbcplugin.osubot.api;
 
 import cn.day.kbcplugin.osubot.api.base.IBeatMapBGProvider;
 import cn.day.kbcplugin.osubot.api.base.IBeatmapDownLoadProvider;
+import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.interceptor.RetryInterceptor;
+import cn.day.kbcplugin.osubot.model.api.chimu.ChimuBeatmap;
 import cn.day.kbcplugin.osubot.utils.URLBuilder;
 import okhttp3.*;
+import org.dromara.hutool.core.io.IoUtil;
 import org.dromara.hutool.core.io.file.FileUtil;
 import org.dromara.hutool.core.text.StrUtil;
 import org.dromara.hutool.http.client.engine.httpclient5.HttpClient5Engine;
@@ -16,6 +19,7 @@ import org.dromara.hutool.log.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -134,5 +138,34 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
         FileUtil.writeBytes(response.bodyBytes(), target);
         logger.info("下载地图完成，用时:{}", TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - current));
         return target;
+    }
+
+    public List<ChimuBeatmap> searchBeatmap(String keyword, int limit, OsuModeEnum mode) {
+        final String url = StrUtil.format("{}{}{}", BASE_URL, API_VERSION, "/search");
+        int modeVal = mode==null?-1:mode.index;
+        try{
+            HttpUrl httpUrl = URLBuilder.builder(url)
+                    .put("query", keyword)
+                    .put("limit", String.valueOf(limit))
+                    .put("mode", String.valueOf(modeVal))
+                    .put("status","1")
+                    .put("status","2")
+                    .build();
+            Request request = new Request.Builder().url(httpUrl).get().build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                ResponseBody resBody = response.body();
+                if (resBody == null) throw new IOException("Empty Response" + response);
+                String rawJson = IoUtil.read(resBody.byteStream(), StandardCharsets.UTF_8);
+                return JSONUtil.parseArray(rawJson).toList(ChimuBeatmap.class);
+            }
+        }catch (IOException e) {
+            logger.error("搜索地图失败:{}", e.getLocalizedMessage(), e);
+        } catch (JSONException e) {
+            logger.error("JSON解析异常:{}", e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            logger.error("API意外异常:{}", e.getLocalizedMessage(), e);
+        }
+        return null;
     }
 }

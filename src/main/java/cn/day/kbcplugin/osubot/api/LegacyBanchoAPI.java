@@ -34,6 +34,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
     private final OkHttpClient client = new OkHttpClient();
     private static final String BASE_URL = "https://osu.ppy.sh/api";
     private static final String AVATAR_URL = "https://a.ppy.sh";
+    public static final String BANCHO_MAP_URL = "https://osu.ppy.sh/beatmapsets/";
     private static final Log logger = LogFactory.getLog("[Bancho Legacy API]");
     private final String apiKey;
 
