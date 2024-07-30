@@ -11,5 +11,4 @@ public interface IBeatmap {
     Integer getMaxCombo();
     String getVersion();
     String getCreator();
-    String getBgName();
 }

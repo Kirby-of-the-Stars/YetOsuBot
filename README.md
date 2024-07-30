@@ -28,6 +28,7 @@ java -jar kookbc-0.30.2.jar
 token: "tokennnnn"
 ```
 - 保存并重新运行kookbc
+- 在插件目录当中生成了与插件同名的数据文件,点进去,修改`config.yml`文件,申请Osu LegacyAPI key后填入(用于bancho的成绩查询和相关功能)
 - 敬请享用
 - 目前kookbc正式版对于高版本JDK支持有严重问题，可能需要自行编译其dev分支下的kookbc才可正常运行
 

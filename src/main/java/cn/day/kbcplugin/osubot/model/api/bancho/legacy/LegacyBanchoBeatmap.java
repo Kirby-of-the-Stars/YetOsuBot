@@ -89,10 +89,4 @@ public class LegacyBanchoBeatmap implements IBeatmap {
     public Long getBid() {
         return beatmapId;
     }
-
-    @Nullable
-    @Override
-    public String getBgName() {
-        return null;
-    }
 }

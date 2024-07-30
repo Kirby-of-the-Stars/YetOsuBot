@@ -75,10 +75,4 @@ public class SbBeatmapInfo implements IBeatmap {
     public String getCreator() {
         return creator;
     }
-
-    @Nullable
-    @Override
-    public String getBgName() {
-        return null;
-    }
 }
