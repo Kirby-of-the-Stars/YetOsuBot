@@ -104,7 +104,7 @@ public class Recent {
             IUserInfo userInfo;
             try {
                 osuId = dbUserInfos.getFirst().getOsuId();
-                userInfo = APIHandler.getAPI(server).getUserInfo(osuId, mode);
+                userInfo = APIHandler.INSTANCE.getAPI(server).getUserInfo(osuId, mode);
                 if (userInfo == null) {
                     message.reply("osu账号数据不存在");
                     return;
@@ -117,7 +117,7 @@ public class Recent {
             IScore score = null;
             if (!lazerMode) {
                 try {
-                    score = APIHandler.getAPI(server).getRecentScore(osuId, mode);
+                    score = APIHandler.INSTANCE.getAPI(server).getRecentScore(osuId, mode);
                 } catch (Exception e) {
                     logger.warn("获取用户成绩流程失败:{}", e.getLocalizedMessage(), e);
                     message.reply("无法获取成绩数据");
@@ -134,7 +134,7 @@ public class Recent {
             }
             IBeatmap beatmap;
             try {
-                beatmap = APIHandler.getMapInfoProvider().getBeatmap(String.valueOf(score.beatmapId()), null);
+                beatmap = APIHandler.INSTANCE.getMapInfoProvider().getBeatmap(String.valueOf(score.beatmapId()), null);
             } catch (Exception e) {
                 message.reply("获取地图信息失败");
                 logger.warn("获取铺面数据流程失败:{}", e.getLocalizedMessage(), e);

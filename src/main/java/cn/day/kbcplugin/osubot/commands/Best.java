@@ -110,7 +110,7 @@ public class Best {
                 IUserInfo userInfo;
                 try {
                     osuId = dbUserInfos.getFirst().getOsuId();
-                    userInfo = APIHandler.getAPI(server).getUserInfo(osuId, mode);
+                    userInfo = APIHandler.INSTANCE.getAPI(server).getUserInfo(osuId, mode);
                     if (userInfo == null) {
                         message.reply("osu账号数据不存在");
                         return;
@@ -122,7 +122,7 @@ public class Best {
                 }
                 List<? extends IScore> scores;
                 try {
-                    scores = APIHandler.getAPI(server).getTopNScores(osuId, mode, index);
+                    scores = APIHandler.INSTANCE.getAPI(server).getTopNScores(osuId, mode, index);
                     if (scores == null || scores.isEmpty()) {
                         message.reply("该账号下没有任何成绩哦~");
                         return;
@@ -135,7 +135,7 @@ public class Best {
                 IScore score = scores.getLast();
                 IBeatmap beatmap;
                 try {
-                    beatmap = APIHandler.getMapInfoProvider().getBeatmap(String.valueOf(score.beatmapId()), null);
+                    beatmap = APIHandler.INSTANCE.getMapInfoProvider().getBeatmap(String.valueOf(score.beatmapId()), null);
                 } catch (Exception e) {
                     message.reply("获取地图信息失败");
                     logger.warn("获取铺面数据流程失败:{}", e.getLocalizedMessage(), e);

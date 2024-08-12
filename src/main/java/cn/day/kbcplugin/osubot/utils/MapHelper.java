@@ -15,7 +15,7 @@ public class MapHelper {
         File map = new File(mapFolder, bid + ".osu");
         if (map.exists()) return map;
         //getMap
-        if (APIHandler.getBeatmapDownLoadProvider().downloadMap(bid, map)) {
+        if (APIHandler.INSTANCE.getBeatmapDownLoadProvider().downloadMap(bid, map)) {
             return map;
         } else {
             return null;
@@ -29,7 +29,7 @@ public class MapHelper {
         }
         File BgFile = findFile(mapFolder, bid + "-bg");
         if (BgFile == null || !BgFile.exists()) {
-            BgFile = APIHandler.getBeatMapBGProvider().downloadBG(bid, mapFolder);
+            BgFile = APIHandler.INSTANCE.getBeatMapBGProvider().downloadBG(bid, mapFolder);
         }
         return BgFile;
     }

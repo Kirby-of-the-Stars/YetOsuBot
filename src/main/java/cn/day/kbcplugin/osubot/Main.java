@@ -1,15 +1,14 @@
 package cn.day.kbcplugin.osubot;
 
-import cn.day.kbcplugin.osubot.api.APIHandler;
-import cn.day.kbcplugin.osubot.api.LegacyBanchoAPI;
-import cn.day.kbcplugin.osubot.api.RustOsuPPCalculator;
-import cn.day.kbcplugin.osubot.api.SBApi;
+import cn.day.kbcplugin.osubot.api.*;
 import cn.day.kbcplugin.osubot.commands.*;
 import cn.day.kbcplugin.osubot.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.utils.ConfigTool;
 import cn.day.kbcplugin.osubot.utils.ImgUtil;
 import com.mybatisflex.core.MybatisFlexBootstrap;
+import com.mybatisflex.core.row.Db;
+import com.mybatisflex.core.row.Row;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.dromara.hutool.setting.Setting;
 import org.slf4j.Logger;
@@ -21,6 +20,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.regex.Matcher;
 
 public class Main extends BasePlugin {
@@ -61,19 +61,18 @@ public class Main extends BasePlugin {
         logger.info("正在注册指令系统");
         AccountMapper accountMapper = dbContext.getMapper(AccountMapper.class);
         UserInfoMapper userInfoMapper = dbContext.getMapper(UserInfoMapper.class);
-        APIHandler.setLegacyBanchoAPI(new LegacyBanchoAPI(APIKey.KEY));//TODO test
-        APIHandler.setSbApi(new SBApi());
-        APIHandler.setMapInfoProvider(APIHandler.getLegacyBanchoAPI());
         LiteKookFactory.builder(this).commands(
                 new BindAccount(accountMapper, userInfoMapper),
                 new UnBind(accountMapper, userInfoMapper),
                 new SetMode(accountMapper),
                 new SetServer(accountMapper),
-                new Recent(accountMapper,userInfoMapper),
-                new APIInfo(),new Best(accountMapper,userInfoMapper),
+                new Recent(accountMapper, userInfoMapper),
+                new APIInfo(), new Best(accountMapper, userInfoMapper),
                 new Profile(userInfoMapper),
                 new SearchMap()
         ).build();
+        logger.info("初始化API");
+        APIHandler.INSTANCE.init(new ChimuAPI(), new LegacyBanchoAPI(APIKey.KEY), new SBApi());
         logger.info("加载Rosu-pp库");
         RustOsuPPCalculator.init();
         ImgUtil.Init();
@@ -141,7 +140,7 @@ public class Main extends BasePlugin {
         }
         Setting dbSetting = new Setting(dbSettingFile, StandardCharsets.UTF_8, false);
         if (isNewDb) {
-            String DbPath = dbFile.getAbsolutePath().replaceAll("\\\\","/");
+            String DbPath = dbFile.getAbsolutePath().replaceAll("\\\\", "/");
             dbSetting.set("url", "jdbc:sqlite:" + DbPath);
             dbSetting.store();
         }
@@ -156,6 +155,7 @@ public class Main extends BasePlugin {
             return false;
         }
         ConfigTool.updateConfig();
+        List<Row> accounts = Db.selectAll("accounts");
         logger.info("数据库加载完成");
         return true;
     }

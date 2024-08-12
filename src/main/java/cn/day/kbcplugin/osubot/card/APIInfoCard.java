@@ -26,15 +26,15 @@ public class APIInfoCard {
         buildr.setSize(Size.LG);
         buildr.addModule(new HeaderModule("当前API信息如下:"));
         List<BaseElement> fields = new ArrayList<>(3);
-        fields.add(new MarkdownElement(StrUtil.format("**铺面数据API**\n{}", APIHandler.getMapInfoProvider().getName())));
-        fields.add(new MarkdownElement(StrUtil.format("**铺面下载API**\n{}", APIHandler.getBeatmapDownLoadProvider().getName())));
-        fields.add(new MarkdownElement(StrUtil.format("**铺面BG下载API**\n{}", APIHandler.getBeatMapBGProvider().getName())));
+        fields.add(new MarkdownElement(StrUtil.format("**铺面数据API**\n{}", APIHandler.INSTANCE.getMapInfoProvider().getName())));
+        fields.add(new MarkdownElement(StrUtil.format("**铺面下载API**\n{}", APIHandler.INSTANCE.getBeatmapDownLoadProvider().getName())));
+        fields.add(new MarkdownElement(StrUtil.format("**铺面BG下载API**\n{}", APIHandler.INSTANCE.getBeatMapBGProvider().getName())));
         buildr.addModule(new SectionModule(new Paragraph(3,fields)));
         buildr.addModule(DividerModule.INSTANCE);
         buildr.addModule(new HeaderModule("当前可用的API如下"));
         buildr.addModule(new SectionModule(new MarkdownElement("bancho(v1) ppysb chimu sayo(WIP)")));
         buildr.addModule(DividerModule.INSTANCE);
-        buildr.addModule(new SectionModule(new MarkdownElement("使用setapi命令可以设置api源")));
+        buildr.addModule(new SectionModule(new MarkdownElement("使用setapi命令可以设置api源(还没做)")));
         return buildr.build();
     }
 }

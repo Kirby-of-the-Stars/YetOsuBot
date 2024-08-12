@@ -78,7 +78,7 @@ public class BindAccount {
                 }
                 IUserInfo userInfo;
                 try {
-                   userInfo = APIHandler.getAPI(server).getUserInfo(osuId, mode);
+                   userInfo = APIHandler.INSTANCE.getAPI(server).getUserInfo(osuId, mode);
                     if (userInfo == null) {
                         message.reply("无法查询到Osu账号信息");
                         return;

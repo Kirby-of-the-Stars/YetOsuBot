@@ -38,7 +38,7 @@ public class ProfileCard {
             fields.add(new MarkdownElement(StrUtil.format("**模式**\n{}", userInfo.getMode().getName())));
             Paragraph paragraph = new Paragraph(3, fields);
             //avatar
-            String avatarUrl = Main.instance.getCore().getHttpAPI().uploadFile("pic", APIHandler.getAvatar(userInfo.getServer(), userInfo.getOsuId()));
+            String avatarUrl = Main.instance.getCore().getHttpAPI().uploadFile("pic", APIHandler.INSTANCE.getAvatar(userInfo.getServer(), userInfo.getOsuId()));
             ImageElement avatar = new ImageElement(avatarUrl,null,Size.SM,true);
             builder.addModule(new SectionModule(paragraph,avatar, Accessory.Mode.LEFT));
             if (i + 1 != userInfos.size()) {
