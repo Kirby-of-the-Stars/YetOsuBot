@@ -103,7 +103,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                     return null;
                 }
                 // observer which is none png file
-                // current : jgp "(Nico" (not stand type)
+                // current : jpg "(Nico" (not stand type)
                 String prefix;
                 prefix = contentType.subtype();
                 if (!subTypeList.contains(prefix)) {
@@ -148,7 +148,6 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                     .put("query", keyword)
                     .put("limit", String.valueOf(limit))
                     .put("mode", String.valueOf(modeVal))
-                    .put("status","1")
                     .put("status","2")
                     .build();
             Request request = new Request.Builder().url(httpUrl).get().build();

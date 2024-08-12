@@ -11,13 +11,8 @@ import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;
 import dev.rollczi.litecommands.annotations.description.Description;
 import dev.rollczi.litecommands.annotations.execute.Execute;
-import dev.rollczi.litecommands.annotations.flag.Flag;
-import dev.rollczi.litecommands.annotations.join.Join;
-import dev.rollczi.litecommands.annotations.optional.OptionalArg;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
-import snw.jkook.command.CommandSender;
-import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.jkook.message.component.card.MultipleCardComponent;
 import snw.kookbc.impl.command.litecommands.annotations.prefix.Prefix;
@@ -28,52 +23,57 @@ import java.util.List;
 
 @Command(name = "search")
 @Prefix("/")
-@Description("搜图,用法:/search 关键字,如果加上-mode则取最后一个单词作为mode")
+@Description("搜图,用法:/search mode 关键字")
 public class SearchMap {
 
     private static final Log logger = LogFactory.getLog("[Search Command]");
     private static final int Limit = 10;
 
-    @Execute
-    public void search(
-            @Context CommandSender commandSender,
+    @Execute(name = "osu")
+    public void searchOsu(
             @Context Message message,
-            @Flag("-mode") boolean useMode,
             @Arg String[] keywords
     ) {
-        if (commandSender instanceof User sender) {
-            try {
-                List<String> words = new ArrayList<>(Arrays.asList(keywords));
-                useMode = words.contains("-mode");
-                String modeStr = null;
-                if (useMode) {
-                    words.remove("-mode");
-                    modeStr = words.getLast();
-                    words.remove(modeStr);
-                }
-                OsuModeEnum mode = null;
-                if (modeStr != null) {
-                    mode = OsuModeEnum.fromName(modeStr);
-                    if (mode == null || mode.index > 3) {
-                        message.reply("无效的mode,可用 osu taiko catch mania");
-                        return;
-                    }
-                }
-                StringBuilder keyword = new StringBuilder();
-                for(String s:words){
-                    keyword.append(s);
-                    keyword.append(" ");
-                }
-                keyword.deleteCharAt(keyword.length() - 1);//除去最后一个空格
-                message.sendReaction(Main.instance.getCore().getUnsafe().getEmoji("✅"));
-                ChimuAPI chimuAPI = APIHandler.getChimuAPI();
-                List<ChimuBeatmap> result = chimuAPI.searchBeatmap(keyword.toString(), Limit, mode);
-                MultipleCardComponent card = SearchMapCard.build(result);
-                message.reply(card);
-            } catch (Exception e) {
-                message.reply("指令执行失败");
-                logger.error("意外异常:{}", e.getLocalizedMessage(), e);
+        search(OsuModeEnum.STANDER,message,keywords);
+    }
+    @Execute(name = "taiko")
+    public void searchTaiko(
+            @Context Message message,
+            @Arg String[] keywords
+    ) {
+        search(OsuModeEnum.TAIKO,message,keywords);
+    }
+    @Execute(name = "catch")
+    public void searchCatch(
+            @Context Message message,
+            @Arg String[] keywords
+    ) {
+        search(OsuModeEnum.CATCH,message,keywords);
+    }
+    @Execute(name = "mania")
+    public void searchMania(
+            @Context Message message,
+            @Arg String[] keywords
+    ) {
+        search(OsuModeEnum.MANIA,message,keywords);
+    }
+    private void search(OsuModeEnum mode,Message message,String[] keywords){
+        try {
+            List<String> words = new ArrayList<>(Arrays.asList(keywords));
+            StringBuilder keyword = new StringBuilder();
+            for(String s:words){
+                keyword.append(s);
+                keyword.append(" ");
             }
+            keyword.deleteCharAt(keyword.length() - 1);//除去最后一个空格
+            message.sendReaction(Main.instance.getCore().getUnsafe().getEmoji("✅"));
+            ChimuAPI chimuAPI = APIHandler.INSTANCE.getChimuAPI();
+            List<ChimuBeatmap> result = chimuAPI.searchBeatmap(keyword.toString(), Limit, mode);
+            MultipleCardComponent card = SearchMapCard.build(result);
+            message.reply(card);
+        } catch (Exception e) {
+            message.reply("指令执行失败");
+            logger.error("意外异常:{}", e.getLocalizedMessage(), e);
         }
     }
 }
