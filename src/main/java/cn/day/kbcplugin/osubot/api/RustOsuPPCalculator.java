@@ -29,6 +29,7 @@ public class RustOsuPPCalculator {
         if (READY_TO_CALL) {
             PPResult ppResult = INSTANCE.cal_pp(map);
             Main.logger.info("pp结果:{}", ppResult.toString());
+            ppResult.setRawMap(map);
             return ppResult;
         }
         Main.logger.warn("离线计算暂时不可用");

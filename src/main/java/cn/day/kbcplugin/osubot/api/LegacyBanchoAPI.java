@@ -7,7 +7,6 @@ import cn.day.kbcplugin.osubot.model.api.bancho.legacy.LegacyBanchoBeatmap;
 import cn.day.kbcplugin.osubot.model.api.bancho.legacy.LegacyBanchoScore;
 import cn.day.kbcplugin.osubot.model.api.bancho.legacy.LegacyBanchoUserInfo;
 import cn.day.kbcplugin.osubot.utils.URLBuilder;
-
 import okhttp3.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dromara.hutool.core.io.IoUtil;
@@ -19,9 +18,9 @@ import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Bancho api v1 的实现
@@ -35,6 +34,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
     private static final String BASE_URL = "https://osu.ppy.sh/api";
     private static final String AVATAR_URL = "https://a.ppy.sh";
     public static final String BANCHO_MAP_URL = "https://osu.ppy.sh/beatmapsets/";
+    public static final String BANCHO_MAP_COVER_URL = "https://assets.ppy.sh/beatmaps/{}/covers/cover.jpg";
     private static final Log logger = LogFactory.getLog("[Bancho Legacy API]");
     private final String apiKey;
 
@@ -125,8 +125,8 @@ public class LegacyBanchoAPI implements IAPIHandler {
                     .put("type", "id")
                     .buildWithGetRequest();
             List<LegacyBanchoScore> scoreList = getList(request, LegacyBanchoScore.class);
-            if(scoreList == null || scoreList.isEmpty()) return null;
-            scoreList.forEach((s)->s.setMode(mode));
+            if (scoreList == null || scoreList.isEmpty()) return null;
+            scoreList.forEach((s) -> s.setMode(mode));
             return scoreList;
         } catch (IOException e) {
             logger.error("获取成绩失败:{}", e.getLocalizedMessage(), e);
@@ -140,7 +140,24 @@ public class LegacyBanchoAPI implements IAPIHandler {
 
     @Override
     public String getUserAvatar(String osuId) {
-        return StrUtil.format("{}/{}",AVATAR_URL,osuId);
+        return StrUtil.format("{}/{}", AVATAR_URL, osuId);
+    }
+
+    public byte[] getMapCover(String sid) {
+        try {
+            HttpUrl httpUrl = URLBuilder.builder(StrUtil.format(BANCHO_MAP_COVER_URL, sid)).build();
+            Request request = new Request.Builder().url(httpUrl).build();
+            ResponseBody responseBody = getRaw(request);
+            Optional<MediaType> type = Optional.ofNullable(responseBody.contentType());
+            if ("image".equals(type.map(MediaType::type).orElse(""))) {
+                //is image
+                return IoUtil.readBytes(responseBody.byteStream());
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
@@ -148,13 +165,12 @@ public class LegacyBanchoAPI implements IAPIHandler {
         return "BanchoAPI(v1)";
     }
 
-    private JSONArray getRawList(Request request) throws Exception {
+    private ResponseBody getRaw(Request request) throws IOException {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
             ResponseBody resBody = response.body();
             if (resBody == null) throw new IOException("Empty Response" + response);
-            String rawBody = IoUtil.read(resBody.byteStream(), StandardCharsets.UTF_8);
-            return JSONUtil.parseArray(rawBody);
+            return resBody;
         }
     }
 
@@ -164,7 +180,8 @@ public class LegacyBanchoAPI implements IAPIHandler {
     }
 
     private <T> List<T> getList(Request request, Class<T> clazz) throws Exception {
-        JSONArray rawList = getRawList(request);
+        String body = IoUtil.readUtf8(getRaw(request).byteStream());
+        JSONArray rawList = JSONUtil.parseArray(body);
         if (rawList.isEmpty()) return null;
         return rawList.toList(clazz);
     }

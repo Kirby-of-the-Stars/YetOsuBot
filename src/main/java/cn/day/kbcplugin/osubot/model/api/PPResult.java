@@ -1,7 +1,10 @@
 package cn.day.kbcplugin.osubot.model.api;
 
 import com.sun.jna.Structure;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
 @Structure.FieldOrder({"pp","pp_acc","pp_aim","pp_speed","pp_fc","max_pp","map_star","debug_text"})
 public class PPResult extends Structure {
     public double pp;
@@ -20,6 +23,9 @@ public class PPResult extends Structure {
 
     public String debug_text;
 
+    @Setter
+    private OsuMap rawMap;
+
     public PPResult() {
 
     }
@@ -32,38 +38,6 @@ public class PPResult extends Structure {
         this.max_pp = max_pp;
         this.map_star = map_star;
         this.debug_text = debug_text;
-    }
-
-    public double getPp() {
-        return pp;
-    }
-
-    public double getPp_acc() {
-        return pp_acc;
-    }
-
-    public double getPp_aim() {
-        return pp_aim;
-    }
-
-    public double getPp_speed() {
-        return pp_speed;
-    }
-
-    public double getPp_fc() {
-        return pp_fc;
-    }
-
-    public double getMax_pp() {
-        return max_pp;
-    }
-
-    public double getMap_star() {
-        return map_star;
-    }
-
-    public String getDebug_text() {
-        return debug_text;
     }
 
     @Override

@@ -1,12 +1,17 @@
 package cn.day.kbcplugin.osubot.model.api.base;
 
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class Mods {
     private long result = 0;
+    private static final List<String> modList = Arrays.asList("HR", "NF", "EZ", "TD", "HD", "HR", "SD", "DT", "RX",
+            "HT", "NC", "FL", "AT", "SO", "AP", "PF", "4K", "5K", "6K", "7K", "8K", "FI", "RM", "CN", "TG", "9K", "KC", "1K",
+            "3K", "2K", "V2", "MR");
 
-    public Long ModsChain() {
+    public Long build() {
         if (result < 0) {
             throw new IllegalArgumentException("mods should bigger then 0");
         } else {
@@ -46,6 +51,7 @@ public class Mods {
         return this;
     }
 
+
     public Mods DT() {
         this.result += 64;
         return this;
@@ -75,13 +81,13 @@ public class Mods {
         return 0L;
     }
 
-    public Mods auto(Byte mode) {
-        result += mode.longValue();
+    public Mods auto(Byte mods) {
+        result += mods.longValue();
         return this;
     }
 
-    public Mods auto(long mode) {
-        result += mode;
+    public Mods auto(long mods) {
+        result += mods;
         return this;
     }
 
@@ -197,5 +203,52 @@ public class Mods {
         StringBuilder sb = new StringBuilder();
         map.keySet().forEach(sb::append);
         return sb.toString();
+    }
+
+    public static Integer StringToMod(String mods) {
+        int res = 0;
+        for (String mod : modList) {
+            if (mods.contains(mod)) {
+                res += modeInt(mod);
+            }
+        }
+        return res;
+    }
+
+    public static int modeInt(String mod) {
+        return switch (mod) {
+            default -> 0;
+            case "NF" -> 1;
+            case "EZ" -> 2;
+            case "TD" -> 4;
+            case "HD" -> 8;
+            case "HR" -> 16;
+            case "SD" -> 32;
+            case "DT" -> 64;
+            case "RX" -> 128;
+            case "HT" -> 256;
+            case "NC" -> 512;
+            case "FL" -> 1024;
+            case "AT" -> 2048;
+            case "SO" -> 4096;
+            case "AP" -> 8192;
+            case "PF" -> 16384;
+            case "4K" -> 32768;
+            case "5K" -> 65536;
+            case "6K" -> 131072;
+            case "7K" -> 262144;
+            case "8K" -> 524288;
+            case "FI" -> 1048576;
+            case "RM" -> 2097152;
+            case "CN" -> 4194304;
+            case "TG" -> 8388608;
+            case "9K" -> 16777216;
+            case "KC" -> 33554432;
+            case "1K" -> 67108864;
+            case "3K" -> 134217728;
+            case "2K" -> 268435456;
+            case "V2" -> 536870912;
+            case "MR" -> 1073741824;
+        };
     }
 }
