@@ -2,15 +2,12 @@ package cn.day.kbcplugin.osubot;
 
 import cn.day.kbcplugin.osubot.api.*;
 import cn.day.kbcplugin.osubot.commands.*;
+import cn.day.kbcplugin.osubot.commands.base.*;
 import cn.day.kbcplugin.osubot.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.enums.ServerEnum;
 import cn.day.kbcplugin.osubot.model.entity.Account;
-import cn.day.kbcplugin.osubot.resolver.AccountContextProvider;
-import cn.day.kbcplugin.osubot.resolver.IntegerParser;
-import cn.day.kbcplugin.osubot.resolver.ModeArgumentResolver;
-import cn.day.kbcplugin.osubot.resolver.ServerArgumentResolver;
 import cn.day.kbcplugin.osubot.utils.ConfigTool;
 import cn.day.kbcplugin.osubot.utils.ImgUtil;
 import com.mybatisflex.core.MybatisFlexBootstrap;
@@ -20,6 +17,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.dromara.hutool.setting.Setting;
 import org.slf4j.Logger;
 import snw.jkook.config.file.FileConfiguration;
+import snw.jkook.message.component.card.MultipleCardComponent;
 import snw.jkook.plugin.BasePlugin;
 import snw.kookbc.impl.command.litecommands.LiteKookFactory;
 
@@ -67,9 +65,9 @@ public class Main extends BasePlugin {
         config = this.getConfig();
         logger.info("正在注册指令系统");
         LiteKookFactory.builder(this)
-                .bind(AccountMapper.class,()->dbContext.getMapper(AccountMapper.class))
-                .bind(UserInfoMapper.class,()->dbContext.getMapper(UserInfoMapper.class))
-                .context(Account.class,new AccountContextProvider(dbContext.getMapper(AccountMapper.class)))
+                .bind(AccountMapper.class, () -> dbContext.getMapper(AccountMapper.class))
+                .bind(UserInfoMapper.class, () -> dbContext.getMapper(UserInfoMapper.class))
+                .context(Account.class, new AccountContextProvider(dbContext.getMapper(AccountMapper.class)))
                 .commands(
                         BindAccount.class,
                         UnBind.class,
@@ -80,9 +78,15 @@ public class Main extends BasePlugin {
                         Profile.class,
                         SearchMap.class
                 )
-                .argument(OsuModeEnum.class,new ModeArgumentResolver())
-                .argument(ServerEnum.class,new ServerArgumentResolver())
-                .argumentParser(Integer.class,new IntegerParser())
+                .argument(OsuModeEnum.class, new ModeArgumentResolver())
+                .argument(ServerEnum.class, new ServerArgumentResolver())
+                .argumentParser(Integer.class, new IntegerParser())
+                .result(MultipleCardComponent.class,new CardMessageResultHandler())
+                .selfProcessor((builder, internal) -> builder.schematicGenerator(new DescSchematicGenerator(
+                        internal.getValidatorService(),
+                        internal.getWrapperRegistry())
+                ))
+                .invalidUsage(new BasicInvalidUsageHandler())
                 .build();
         logger.info("初始化API");
         APIHandler.INSTANCE.init(new ChimuAPI(), new LegacyBanchoAPI(APIKey.KEY), new SBApi());

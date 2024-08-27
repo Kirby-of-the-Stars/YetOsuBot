@@ -32,7 +32,7 @@ public class Setter {
     public void setMode(
             @Context Account account,
             @Context Message message,
-            @Arg OsuModeEnum mode
+            @Arg("mode") OsuModeEnum mode
     ){
         try{
             if (account.getPreferredMode().index > OsuModeEnum.MANIA.index) {
@@ -56,7 +56,7 @@ public class Setter {
     public void setServer(
             @Context Account account,
             @Context Message message,
-            @Arg ServerEnum server
+            @Arg("server") ServerEnum server
             ){
         try{
             account.setPreferredServer(server);

@@ -2,7 +2,6 @@ package cn.day.kbcplugin.osubot.commands;
 
 import cn.day.kbcplugin.osubot.Main;
 import cn.day.kbcplugin.osubot.api.APIHandler;
-import cn.day.kbcplugin.osubot.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.enums.ServerEnum;
@@ -12,7 +11,6 @@ import cn.day.kbcplugin.osubot.model.api.base.IUserInfo;
 import cn.day.kbcplugin.osubot.model.entity.Account;
 import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import cn.day.kbcplugin.osubot.utils.ImgUtil;
-
 import com.mybatisflex.core.query.QueryChain;
 import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;
@@ -23,8 +21,6 @@ import dev.rollczi.litecommands.annotations.inject.Inject;
 import dev.rollczi.litecommands.annotations.optional.OptionalArg;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
-import snw.jkook.command.CommandSender;
-import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.jkook.message.component.card.CardBuilder;
 import snw.jkook.message.component.card.MultipleCardComponent;
@@ -59,8 +55,8 @@ public class Recent {
     public void recentScore(
             @Context Account account,
             @Context Message message,
-            @OptionalArg OsuModeEnum modeArg,
-            @OptionalArg ServerEnum serverArg,
+            @OptionalArg("mode") OsuModeEnum modeArg,
+            @OptionalArg("server") ServerEnum serverArg,
             @Flag("-lazer") boolean lazerMode
     ) {
         MultipleCardComponent card = null;

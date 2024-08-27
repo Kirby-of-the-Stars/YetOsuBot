@@ -1,4 +1,4 @@
-package cn.day.kbcplugin.osubot.resolver;
+package cn.day.kbcplugin.osubot.commands.base;
 
 import cn.day.kbcplugin.osubot.enums.ServerEnum;
 import dev.rollczi.litecommands.argument.Argument;
@@ -14,7 +14,7 @@ public class ServerArgumentResolver extends ArgumentResolver<CommandSender, Serv
     protected ParseResult<ServerEnum> parse(Invocation<CommandSender> invocation, Argument<ServerEnum> argument, String s) {
         ServerEnum server = ServerEnum.fromName(s);
         if(server == null) {
-            return ParseResult.failure("错误的服务器类型");
+            return ParseResult.failure("请输入正确的服务器类型");
         }
         return ParseResult.success(server);
     }

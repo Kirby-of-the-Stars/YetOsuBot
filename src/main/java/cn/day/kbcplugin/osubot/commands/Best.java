@@ -2,7 +2,6 @@ package cn.day.kbcplugin.osubot.commands;
 
 import cn.day.kbcplugin.osubot.Main;
 import cn.day.kbcplugin.osubot.api.APIHandler;
-import cn.day.kbcplugin.osubot.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.enums.ServerEnum;
@@ -14,17 +13,14 @@ import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import cn.day.kbcplugin.osubot.utils.ImgUtil;
 import com.mybatisflex.core.query.QueryChain;
 import dev.rollczi.litecommands.annotations.argument.Arg;
-import dev.rollczi.litecommands.annotations.argument.Key;
 import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;
 import dev.rollczi.litecommands.annotations.description.Description;
 import dev.rollczi.litecommands.annotations.execute.Execute;
 import dev.rollczi.litecommands.annotations.inject.Inject;
 import dev.rollczi.litecommands.annotations.optional.OptionalArg;
-import org.checkerframework.checker.units.qual.K;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
-import snw.jkook.command.CommandSender;
 import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.jkook.message.component.card.CardBuilder;
@@ -57,9 +53,9 @@ public class Best {
             @Context User sender,
             @Context Message message,
             @Context Account account,
-            @Arg Integer index,
-            @OptionalArg ServerEnum serverArg,
-            @OptionalArg OsuModeEnum modeArg
+            @Arg("N") Integer index,
+            @OptionalArg("server")ServerEnum serverArg,
+            @OptionalArg ("mode")OsuModeEnum modeArg
     ) {
         try {
             if (index > MAX_LIMIT) {

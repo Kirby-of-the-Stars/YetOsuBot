@@ -33,10 +33,10 @@ public class PPCal {
     @Execute(name = "osu")
     public void CalOsu(
             @Context Message message,
-            @Arg String bid,
-            @OptionalArg String mods,
-            @OptionalArg String acc,
-            @OptionalArg String miss
+            @Arg("bid") String bid,
+            @OptionalArg("mods") String mods,
+            @OptionalArg("acc") String acc,
+            @OptionalArg("miss") String miss
     ) {
         this.CalPP(OsuModeEnum.STANDER, message, bid, mods, acc, miss);
     }

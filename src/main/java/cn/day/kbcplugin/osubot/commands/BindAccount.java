@@ -46,9 +46,9 @@ public class BindAccount {
     public void BindKookUser(
             @Context User sender,
             @Context Message message,
-            @Arg String osuId,
-            @OptionalArg ServerEnum serverArg,
-            @OptionalArg OsuModeEnum modeArg
+            @Arg("osuId") String osuId,
+            @OptionalArg("sever") ServerEnum serverArg,
+            @OptionalArg("mode") OsuModeEnum modeArg
     ) {
         try {
             final String kookId = sender.getId();

@@ -39,7 +39,7 @@ public class UnBind {
     public void unbindAccount(
             @Context User sender,
             @Context Message message,
-            @OptionalArg String osuId) {
+            @OptionalArg("osuId") String osuId) {
         try {
             String kookId = sender.getId();
             boolean delAll = osuId == null;

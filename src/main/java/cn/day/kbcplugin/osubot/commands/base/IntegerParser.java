@@ -1,4 +1,4 @@
-package cn.day.kbcplugin.osubot.resolver;
+package cn.day.kbcplugin.osubot.commands.base;
 
 import dev.rollczi.litecommands.argument.Argument;
 import dev.rollczi.litecommands.argument.parser.ParseResult;

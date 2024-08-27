@@ -32,7 +32,7 @@ public class SearchMap {
     @Execute(name = "osu")
     public void searchOsu(
             @Context Message message,
-            @Arg String[] keywords
+            @Arg("keywords") String[] keywords
     ) {
         search(OsuModeEnum.STANDER,message,keywords);
     }

@@ -1,4 +1,4 @@
-package cn.day.kbcplugin.osubot.resolver;
+package cn.day.kbcplugin.osubot.commands.base;
 
 import cn.day.kbcplugin.osubot.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.model.entity.Account;

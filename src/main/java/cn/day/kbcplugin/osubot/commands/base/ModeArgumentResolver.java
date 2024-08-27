@@ -1,4 +1,4 @@
-package cn.day.kbcplugin.osubot.resolver;
+package cn.day.kbcplugin.osubot.commands.base;
 
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import dev.rollczi.litecommands.argument.Argument;
@@ -18,7 +18,7 @@ public class ModeArgumentResolver extends ArgumentResolver<CommandSender, OsuMod
     protected ParseResult<OsuModeEnum> parse(Invocation<CommandSender> invocation, Argument<OsuModeEnum> argument, String s) {
         OsuModeEnum mode = OsuModeEnum.fromName(s);
         if(mode == null) {
-            return ParseResult.failure("错误的模式");
+            return ParseResult.failure("请输入正确的模式");
         }
         return ParseResult.success(mode);
     }

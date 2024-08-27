@@ -4,7 +4,6 @@ import cn.day.kbcplugin.osubot.Main;
 import cn.day.kbcplugin.osubot.api.APIHandler;
 import cn.day.kbcplugin.osubot.model.api.PPResult;
 import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
-import cn.day.kbcplugin.osubot.utils.MapHelper;
 import org.dromara.hutool.core.text.StrUtil;
 import snw.jkook.message.component.card.CardBuilder;
 import snw.jkook.message.component.card.MultipleCardComponent;
@@ -18,7 +17,6 @@ import snw.jkook.message.component.card.module.DividerModule;
 import snw.jkook.message.component.card.module.SectionModule;
 import snw.jkook.message.component.card.structure.Paragraph;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
