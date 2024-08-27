@@ -4,6 +4,13 @@ import cn.day.kbcplugin.osubot.api.*;
 import cn.day.kbcplugin.osubot.commands.*;
 import cn.day.kbcplugin.osubot.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
+import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
+import cn.day.kbcplugin.osubot.enums.ServerEnum;
+import cn.day.kbcplugin.osubot.model.entity.Account;
+import cn.day.kbcplugin.osubot.resolver.AccountContextProvider;
+import cn.day.kbcplugin.osubot.resolver.IntegerParser;
+import cn.day.kbcplugin.osubot.resolver.ModeArgumentResolver;
+import cn.day.kbcplugin.osubot.resolver.ServerArgumentResolver;
 import cn.day.kbcplugin.osubot.utils.ConfigTool;
 import cn.day.kbcplugin.osubot.utils.ImgUtil;
 import com.mybatisflex.core.MybatisFlexBootstrap;
@@ -59,18 +66,24 @@ public class Main extends BasePlugin {
     public void onEnable() {
         config = this.getConfig();
         logger.info("正在注册指令系统");
-        AccountMapper accountMapper = dbContext.getMapper(AccountMapper.class);
-        UserInfoMapper userInfoMapper = dbContext.getMapper(UserInfoMapper.class);
-        LiteKookFactory.builder(this).commands(
-                new BindAccount(accountMapper, userInfoMapper),
-                new UnBind(accountMapper, userInfoMapper),
-                new SetMode(accountMapper),
-                new SetServer(accountMapper),
-                new Recent(accountMapper, userInfoMapper),
-                new APIInfo(), new Best(accountMapper, userInfoMapper),
-                new Profile(userInfoMapper),
-                new SearchMap()
-        ).build();
+        LiteKookFactory.builder(this)
+                .bind(AccountMapper.class,()->dbContext.getMapper(AccountMapper.class))
+                .bind(UserInfoMapper.class,()->dbContext.getMapper(UserInfoMapper.class))
+                .context(Account.class,new AccountContextProvider(dbContext.getMapper(AccountMapper.class)))
+                .commands(
+                        BindAccount.class,
+                        UnBind.class,
+                        Setter.class,
+                        Recent.class,
+                        APIInfo.class,
+                        Best.class,
+                        Profile.class,
+                        SearchMap.class
+                )
+                .argument(OsuModeEnum.class,new ModeArgumentResolver())
+                .argument(ServerEnum.class,new ServerArgumentResolver())
+                .argumentParser(Integer.class,new IntegerParser())
+                .build();
         logger.info("初始化API");
         APIHandler.INSTANCE.init(new ChimuAPI(), new LegacyBanchoAPI(APIKey.KEY), new SBApi());
         logger.info("加载Rosu-pp库");

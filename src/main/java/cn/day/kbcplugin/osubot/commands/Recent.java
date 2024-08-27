@@ -19,6 +19,7 @@ import dev.rollczi.litecommands.annotations.context.Context;
 import dev.rollczi.litecommands.annotations.description.Description;
 import dev.rollczi.litecommands.annotations.execute.Execute;
 import dev.rollczi.litecommands.annotations.flag.Flag;
+import dev.rollczi.litecommands.annotations.inject.Inject;
 import dev.rollczi.litecommands.annotations.optional.OptionalArg;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
@@ -26,6 +27,7 @@ import snw.jkook.command.CommandSender;
 import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.jkook.message.component.card.CardBuilder;
+import snw.jkook.message.component.card.MultipleCardComponent;
 import snw.jkook.message.component.card.Size;
 import snw.jkook.message.component.card.Theme;
 import snw.jkook.message.component.card.element.ImageElement;
@@ -44,57 +46,33 @@ public class Recent {
 
     //getCore().getUnsafe().getEmoji("✅");
 
-    private final AccountMapper accountMapper;
     private final UserInfoMapper userInfoMapper;
 
     private static final Log logger = LogFactory.getLog("[Recent Command]");
 
-    public Recent(AccountMapper accountMapper, UserInfoMapper userInfoMapper) {
-        this.accountMapper = accountMapper;
+    @Inject
+    public Recent(UserInfoMapper userInfoMapper) {
         this.userInfoMapper = userInfoMapper;
     }
 
     @Execute
     public void recentScore(
-            @Context CommandSender commandSender,
+            @Context Account account,
             @Context Message message,
-            @OptionalArg String modeStr,
-            @OptionalArg String serverStr,
+            @OptionalArg OsuModeEnum modeArg,
+            @OptionalArg ServerEnum serverArg,
             @Flag("-lazer") boolean lazerMode
     ) {
-        if (commandSender instanceof User sender) {
-            String kookId = sender.getId();
-            Account account = accountMapper.selectOneById(kookId);
-            if (account == null) {
-                message.reply("你还未绑定任何osu账号,请使用/bind 绑定");
-                return;
-            }
-            OsuModeEnum mode = account.getPreferredMode();
-            ServerEnum server = account.getPreferredServer();
-            if (modeStr != null) {
-                OsuModeEnum argMode = OsuModeEnum.fromName(modeStr);
-                if (argMode == null) {
-                    message.reply("无效的mode名字,可选的mode名:" + OsuModeEnum.AllNames());
-                    return;
-                } else {
-                    mode = argMode;
-                }
-            }
-            if (serverStr != null) {
-                ServerEnum argServer = ServerEnum.fromName(serverStr);
-                if (argServer == null) {
-                    message.reply("无效的mode名字,可选的mode名:" + OsuModeEnum.AllNames());
-                    return;
-                } else {
-                    server = argServer;
-                }
-            }
+        MultipleCardComponent card = null;
+        try {
+            OsuModeEnum mode = modeArg == null ? account.getPreferredMode() : modeArg;
+            ServerEnum server = serverArg == null ? account.getPreferredServer() : serverArg;
             message.sendReaction(Main.instance.getCore().getUnsafe().getEmoji("✅"));
             //query
             List<UserInfo> dbUserInfos = QueryChain.of(userInfoMapper)
                     .select()
                     .from(USER_INFO)
-                    .where(USER_INFO.KOOK_ID.eq(kookId).and(USER_INFO.SERVER.eq(server)))
+                    .where(USER_INFO.KOOK_ID.eq(account.getKookId()).and(USER_INFO.SERVER.eq(server)))
                     .list();
             if (dbUserInfos == null || dbUserInfos.isEmpty()) {
                 message.reply("你还未绑定任何osu账号,请使用/bind 绑定");
@@ -155,15 +133,17 @@ public class Recent {
             CardBuilder builder = new CardBuilder();
             builder.setTheme(Theme.SUCCESS).setSize(Size.LG);
             byte[] base64File = Base64.getDecoder().decode(base64);
-            try {
-                String fileName = message.getId() + "recent" + "-" + System.currentTimeMillis() + ".png";
-                String url = Main.instance.getCore().getHttpAPI().uploadFile(fileName, base64File);
-                builder.addModule(new ContainerModule.Builder()
-                        .add(new ImageElement(url, null, Size.LG, true)).build());
-                message.reply(builder.build());
-            } catch (Exception e) {
-                message.reply("无法发出成绩,可能是被Kook拦截了");
-                logger.warn("获取铺面数据流程失败:{}", e.getLocalizedMessage(), e);
+            String fileName = message.getId() + "recent" + "-" + System.currentTimeMillis() + ".png";
+            String url = Main.instance.getCore().getHttpAPI().uploadFile(fileName, base64File);
+            builder.addModule(new ContainerModule.Builder()
+                    .add(new ImageElement(url, null, Size.LG, true)).build());
+            card = builder.build();
+            message.reply(card);
+        } catch (Exception e) {
+            message.reply("无法发出成绩,可能是被Kook拦截了");
+            logger.warn("打印成绩失败:{}", e.getLocalizedMessage(), e);
+            if(card != null) {
+                logger.warn("报错的卡片json:{}", snw.kookbc.impl.entity.builder.CardBuilder.serialize(card));
             }
         }
     }

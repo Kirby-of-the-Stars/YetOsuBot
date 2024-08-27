@@ -2,12 +2,14 @@ package cn.day.kbcplugin.osubot.commands;
 
 import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.card.ProfileCard;
+import cn.day.kbcplugin.osubot.model.entity.Account;
 import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import com.mybatisflex.core.query.QueryChain;
 import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.context.Context;
 import dev.rollczi.litecommands.annotations.description.Description;
 import dev.rollczi.litecommands.annotations.execute.Execute;
+import dev.rollczi.litecommands.annotations.inject.Inject;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
 import snw.jkook.command.CommandSender;
@@ -29,29 +31,30 @@ public class Profile {
     private final UserInfoMapper userInfoMapper;
     private static final Log logger = LogFactory.getLog("[Profile Command]");
 
+    @Inject
     public Profile(UserInfoMapper userInfoMapper) {
         this.userInfoMapper = userInfoMapper;
     }
 
     @Execute
-    public void infoMe(@Context CommandSender commandSender, @Context Message message) {
-        if (commandSender instanceof User sender) {
-            MultipleCardComponent card = null;
-            try {
-                List<UserInfo> list = QueryChain.of(userInfoMapper)
-                        .select()
-                        .from(USER_INFO)
-                        .where(USER_INFO.KOOK_ID.eq(sender.getId()))
-                        .list();
-                card = ProfileCard.build(list, sender.getName());
-                message.reply(card);
-            } catch (Exception e) {
-                logger.warn("Kook发送消息失败:{}", e.getLocalizedMessage(), e);
-                if(card!=null){
-                    logger.warn("报错的卡片json:{}",CardBuilder.serialize(card));
-                }
-                message.reply("发送消息失败");
+    public void infoMe(
+            @Context User sender,
+            @Context Message message) {
+        MultipleCardComponent card = null;
+        try {
+            List<UserInfo> list = QueryChain.of(userInfoMapper)
+                    .select()
+                    .from(USER_INFO)
+                    .where(USER_INFO.KOOK_ID.eq(sender.getId()))
+                    .list();
+            card = ProfileCard.build(list, sender.getName());
+            message.reply(card);
+        } catch (Exception e) {
+            logger.warn("Kook发送消息失败:{}", e.getLocalizedMessage(), e);
+            if (card != null) {
+                logger.warn("报错的卡片json:{}", CardBuilder.serialize(card));
             }
+            message.reply("发送消息失败");
         }
     }
 }

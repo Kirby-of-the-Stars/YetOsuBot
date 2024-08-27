@@ -2,7 +2,6 @@ package cn.day.kbcplugin.osubot.api;
 
 import cn.day.kbcplugin.osubot.api.base.IAPIHandler;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
-import cn.day.kbcplugin.osubot.exception.APIException;
 import cn.day.kbcplugin.osubot.model.api.bancho.legacy.LegacyBanchoBeatmap;
 import cn.day.kbcplugin.osubot.model.api.bancho.legacy.LegacyBanchoScore;
 import cn.day.kbcplugin.osubot.model.api.bancho.legacy.LegacyBanchoUserInfo;
@@ -46,7 +45,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
     @Override
     public LegacyBanchoUserInfo getUserInfo(String osuId, OsuModeEnum mode) {
         int modeIndex = mode.index;
-        if (modeIndex >= 4) throw new APIException("BanchoAPI only support 0~3 mode");
+        if (modeIndex >= 4) throw new RuntimeException("BanchoAPI only support 0~3 mode");
         final String url = StrUtil.format("{}{}", BASE_URL, "/get_user");
         try {
             Request request = urlBuilder(url)
