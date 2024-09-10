@@ -31,13 +31,19 @@ class DownloadMapTest {
     void sayo(){
         final String bid = "696225";
         final String sid = "306591";
+        final String sid2 = "714506";
         LegacyBanchoBeatmap banchoBeatmap = new LegacyBanchoBeatmap();
         banchoBeatmap.setBeatmapId(Long.parseLong(bid));
         banchoBeatmap.setBeatmapsetId(Long.parseLong(sid));
         banchoBeatmap.setVersion("Special");
         File osuFile = MapHelper.getOsuFile(banchoBeatmap);
         Assert.notNull(osuFile);
-        File mapFile = MapHelper.getBgFile(banchoBeatmap);
-        Assert.notNull(mapFile);
+        File bgFile = MapHelper.getBgFile(banchoBeatmap);
+        Assert.notNull(bgFile);
+        banchoBeatmap.setBeatmapId(Long.parseLong(sid2));
+        banchoBeatmap.setVersion("Insane");
+        File bgFile2 = MapHelper.getBgFile(banchoBeatmap);
+        Assert.notNull(bgFile2
+        );
     }
 }

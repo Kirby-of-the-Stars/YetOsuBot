@@ -33,7 +33,7 @@ public enum APIHandler {
             this.sbApi = sbApi;
             this.mapInfoProvider = legacyBanchoAPI;
             this.beatmapDownLoadProvider = new SayoAPI();
-            this.beatMapBGProvider = chimuAPI;
+            this.beatMapBGProvider = new SayoAPI();
         }
     };
     protected ChimuAPI chimuAPI;

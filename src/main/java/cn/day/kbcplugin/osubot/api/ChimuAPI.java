@@ -30,7 +30,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
     public static final String BG_URL = "/preview/background/";
     private static final String API_VERSION = "/api/v2";
     private static final Log logger = LogFactory.getLog("[Chimu API]");
-    private static final List<String> subTypeList = Arrays.asList("png", "jpeg", "jpg");
+    protected static final List<String> subTypeList = Arrays.asList("png", "jpeg", "jpg");
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10L, TimeUnit.SECONDS)
             .readTimeout(10L, TimeUnit.SECONDS)//add readTimeout limit for resource download
@@ -75,7 +75,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
     }
 
     @Override
-    public File downloadBG(IBeatmap beatmap, File target) {
+    public File downloadBG(IBeatmap beatmap, File target,String name) {
         String beatmapId = String.valueOf(beatmap.getBid());
         logger.info("开始下载背景图:{}", beatmapId);
         final String url = StrUtil.format("{}{}{}", BASE_URL, BG_URL, beatmapId);
