@@ -52,14 +52,14 @@ public class ScoreUtil {
     /**
      * @param score   the score
      * @param beatmap the beatmap
-     * @return only rosu-pp result
+     * @return rosu-pp result
      * @author DAY
      */
     public static PPResult calcPPWithRosu(IScore score, IBeatmap beatmap) {
         logger.info("开始计算PP");
         Mods stdMods = Mods.Builder();
         stdMods.auto(score.mods());
-        File osu = MapHelper.getOsuFile(String.valueOf(beatmap.getBid()), String.valueOf(beatmap.getSid()));
+        File osu = MapHelper.getOsuFile(beatmap);
         if (osu == null) {
             logger.error("无法获取到地图文件,不计算pp");
             return null;
@@ -89,7 +89,7 @@ public class ScoreUtil {
         List<PPResult> results = new ArrayList<>();
         logger.info("开始计算PP");
         Mods stdMods = Mods.Builder().auto(mods);
-        File osu = MapHelper.getOsuFile(String.valueOf(beatmap.getBid()), String.valueOf(beatmap.getSid()));
+        File osu = MapHelper.getOsuFile(beatmap);
         if (osu == null) {
             logger.error("无法获取到地图文件,不计算pp");
             return null;
@@ -117,7 +117,7 @@ public class ScoreUtil {
                     stdMods.build().intValue(),
                     acc,
                     miss == null ? 0 : miss,
-                    beatmap.getMaxCombo()-miss,
+                    beatmap.getMaxCombo() - miss,
                     beatmap.getMaxCombo()
             );
             results.add(RustOsuPPCalculator.CalPP(osuMap));

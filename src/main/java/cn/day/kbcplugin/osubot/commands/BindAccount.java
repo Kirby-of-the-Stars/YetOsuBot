@@ -1,8 +1,8 @@
 package cn.day.kbcplugin.osubot.commands;
 
 import cn.day.kbcplugin.osubot.api.APIHandler;
-import cn.day.kbcplugin.osubot.dao.AccountMapper;
-import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
+import cn.day.kbcplugin.osubot.db.dao.AccountMapper;
+import cn.day.kbcplugin.osubot.db.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.enums.ServerEnum;
 import cn.day.kbcplugin.osubot.model.api.base.IUserInfo;
@@ -19,7 +19,6 @@ import dev.rollczi.litecommands.annotations.inject.Inject;
 import dev.rollczi.litecommands.annotations.optional.OptionalArg;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
-import snw.jkook.command.CommandSender;
 import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.kookbc.impl.command.litecommands.annotations.prefix.Prefix;

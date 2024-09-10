@@ -4,9 +4,9 @@ import com.mybatisflex.annotation.EnumValue;
 
 public enum BeatmapStatus {
 
-    RANKED(1,"ranked"),
-    LOVED(4,"loved"),
-    UNRANKED(0,"unranked");
+    RANKED(1, "ranked"),
+    LOVED(4, "loved"),
+    UNRANKED(0, "unranked");
 
     public final int index;
     public final String name;
@@ -16,12 +16,12 @@ public enum BeatmapStatus {
         this.name = name;
     }
 
-    @EnumValue
-    public int getIndex(){
-        return index;
+    public static boolean isOnline(int index) {
+        return index == 1 || index == 4;
     }
 
-    public static boolean isOnline(int index){
-        return index == 1 || index == 4;
+    @EnumValue
+    public int getIndex() {
+        return index;
     }
 }

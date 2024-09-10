@@ -13,11 +13,12 @@ public class ServerArgumentResolver extends ArgumentResolver<CommandSender, Serv
     @Override
     protected ParseResult<ServerEnum> parse(Invocation<CommandSender> invocation, Argument<ServerEnum> argument, String s) {
         ServerEnum server = ServerEnum.fromName(s);
-        if(server == null) {
+        if (server == null) {
             return ParseResult.failure("请输入正确的服务器类型");
         }
         return ParseResult.success(server);
     }
+
     @Override
     public SuggestionResult suggest(Invocation<CommandSender> invocation, Argument<ServerEnum> argument, SuggestionContext context) {
         return SuggestionResult.of(ServerEnum.toNameList());

@@ -1,6 +1,6 @@
 package cn.day.kbcplugin.osubot.commands.base;
 
-import cn.day.kbcplugin.osubot.dao.AccountMapper;
+import cn.day.kbcplugin.osubot.db.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.model.entity.Account;
 import dev.rollczi.litecommands.context.ContextProvider;
 import dev.rollczi.litecommands.context.ContextResult;

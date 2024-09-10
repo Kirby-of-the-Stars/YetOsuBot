@@ -3,7 +3,7 @@ package cn.day.kbcplugin.osubot.model.api;
 import com.sun.jna.Structure;
 
 
-@Structure.FieldOrder({"path","mods","acc","miss","combo","max_combo"})
+@Structure.FieldOrder({"path", "mods", "acc", "miss", "combo", "max_combo"})
 public class OsuMap extends Structure {
     public String path;
     public Long mods;

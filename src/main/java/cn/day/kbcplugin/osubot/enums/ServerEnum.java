@@ -23,21 +23,21 @@ public enum ServerEnum {
         return Arrays.stream(ServerEnum.values()).map(ServerEnum::getName).toList();
     }
 
-    public static String AllNames(){
+    public static String AllNames() {
         return Arrays.toString(toNameList().toArray());
     }
 
     @Nullable
     public static ServerEnum fromName(String name) {
-        return Arrays.stream(ServerEnum.values()).filter(e->e.name.equals(name)).findFirst().orElse(null);
+        return Arrays.stream(ServerEnum.values()).filter(e -> e.name.equals(name)).findFirst().orElse(null);
+    }
+
+    public static ServerEnum parseInt(int i) {
+        return ServerEnum.values()[i];
     }
 
     @EnumValue
     public int getValue() {
         return this.ordinal();
-    }
-
-    public static ServerEnum parseInt(int i) {
-        return ServerEnum.values()[i];
     }
 }

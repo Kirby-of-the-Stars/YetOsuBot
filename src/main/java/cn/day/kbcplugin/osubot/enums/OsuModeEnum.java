@@ -40,15 +40,14 @@ public enum OsuModeEnum {
         return Arrays.stream(OsuModeEnum.values()).filter(e -> e.name.equals(name)).findFirst().orElse(null);
     }
 
+    public static OsuModeEnum get(int index) {
+        if (index < 0 || index > 8) throw new IndexOutOfBoundsException();
+        if (index == 8) index = 7;
+        return values()[index];
+    }
+
     @EnumValue
     public int getIndex() {
         return index;
-    }
-
-
-    public static OsuModeEnum get(int index) {
-        if (index < 0 || index > 8) throw new IndexOutOfBoundsException();
-        if(index==8) index = 7;
-        return values()[index];
     }
 }

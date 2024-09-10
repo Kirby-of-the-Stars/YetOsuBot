@@ -21,7 +21,7 @@ public class BasicInvalidUsageHandler implements InvalidUsageHandler<CommandSend
             // 但是没注册abc这个子命令，这里就是UNKNOWN_COMMAND
             case UNKNOWN_COMMAND -> "未知指令";
             // 例如输入了: example print text
-            // 但是text这个参数的类型是 <num:int> text不是int，这里就是INVALID_ARGUMENT
+            // 但是text这个参数的类型是 Integer text不是int，这里就是INVALID_ARGUMENT
             // 该类型是由解析器传递的: ParseResult.failure(FailedReason.of(InvalidUsage.Cause.INVALID_ARGUMENT));
             case INVALID_ARGUMENT -> "错误的参数";
             // 例如注册指令: example <location>

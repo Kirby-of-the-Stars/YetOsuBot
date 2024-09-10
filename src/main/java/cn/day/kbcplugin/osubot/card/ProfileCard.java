@@ -2,6 +2,7 @@ package cn.day.kbcplugin.osubot.card;
 
 import cn.day.kbcplugin.osubot.Main;
 import cn.day.kbcplugin.osubot.api.APIHandler;
+import cn.day.kbcplugin.osubot.model.entity.Account;
 import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import org.dromara.hutool.core.text.StrUtil;
 import snw.jkook.entity.abilities.Accessory;
@@ -18,16 +19,25 @@ import snw.jkook.message.component.card.module.SectionModule;
 import snw.jkook.message.component.card.structure.Paragraph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ProfileCard {
 
-    public static MultipleCardComponent build(List<UserInfo> userInfos, String name) {
+    public static MultipleCardComponent build(List<UserInfo> userInfos, String name, Account account) {
         int i = 0;
         CardBuilder builder = new CardBuilder();
         builder.setTheme(Theme.PRIMARY);
         builder.setSize(Size.LG);
-        builder.addModule(new HeaderModule(name + "的账号如下:"));//title
+        builder.addModule(new HeaderModule(name + "绑定的账号如下:"));//title
+        builder.addModule(DividerModule.INSTANCE);
+        //prefer
+        builder.addModule(new SectionModule(
+                new Paragraph(2, Arrays.asList(
+                        new MarkdownElement(StrUtil.format("**偏好服务器**\n{}", account.getPreferredServer())),
+                        new MarkdownElement(StrUtil.format("**偏好模式**\n{}", account.getPreferredMode()))
+                ))
+                , null, null));
         for (UserInfo userInfo : userInfos) {
             List<BaseElement> fields = new ArrayList<>();
             //name
@@ -39,8 +49,8 @@ public class ProfileCard {
             Paragraph paragraph = new Paragraph(3, fields);
             //avatar
             String avatarUrl = Main.instance.getCore().getHttpAPI().uploadFile("pic", APIHandler.INSTANCE.getAvatar(userInfo.getServer(), userInfo.getOsuId()));
-            ImageElement avatar = new ImageElement(avatarUrl,null,Size.SM,true);
-            builder.addModule(new SectionModule(paragraph,avatar, Accessory.Mode.LEFT));
+            ImageElement avatar = new ImageElement(avatarUrl, null, Size.SM, true);
+            builder.addModule(new SectionModule(paragraph, avatar, Accessory.Mode.LEFT));
             if (i + 1 != userInfos.size()) {
                 builder.addModule(DividerModule.INSTANCE);//add diver
             }

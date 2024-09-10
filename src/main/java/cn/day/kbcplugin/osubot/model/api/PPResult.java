@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Structure.FieldOrder({"pp","pp_acc","pp_aim","pp_speed","pp_fc","max_pp","map_star","debug_text"})
+@Structure.FieldOrder({"pp", "pp_acc", "pp_aim", "pp_speed", "pp_fc", "max_pp", "map_star", "debug_text"})
 public class PPResult extends Structure {
     public double pp;
     /// The accuracy portion of the final pp.
@@ -27,9 +27,17 @@ public class PPResult extends Structure {
     private OsuMap rawMap;
 
     public PPResult() {
-
+        this.pp = 0;
+        this.pp_acc = 0;
+        this.pp_aim = 0;
+        this.pp_speed = 0;
+        this.pp_fc = 0;
+        this.max_pp = 0;
+        this.map_star = 0;
+        this.debug_text = "";
     }
-    public PPResult(double pp, double pp_acc, double pp_aim, double pp_speed,double pp_fc ,double max_pp, double map_star, String debug_text) {
+
+    public PPResult(double pp, double pp_acc, double pp_aim, double pp_speed, double pp_fc, double max_pp, double map_star, String debug_text) {
         this.pp = pp;
         this.pp_acc = pp_acc;
         this.pp_aim = pp_aim;
@@ -43,14 +51,14 @@ public class PPResult extends Structure {
     @Override
     public String toString() {
         return "PPResult{" +
-                "pp=" + pp +
-                ", pp_acc=" + pp_acc +
-                ", pp_aim=" + pp_aim +
-                ", pp_speed=" + pp_speed +
-                ", pp_fc=" + pp_fc +
-                ", max_pp=" + max_pp +
-                ", map_star=" + map_star +
-                ", debug_text='" + debug_text + '\'' +
-                '}';
+               "pp=" + pp +
+               ", pp_acc=" + pp_acc +
+               ", pp_aim=" + pp_aim +
+               ", pp_speed=" + pp_speed +
+               ", pp_fc=" + pp_fc +
+               ", max_pp=" + max_pp +
+               ", map_star=" + map_star +
+               ", debug_text='" + debug_text + '\'' +
+               '}';
     }
 }

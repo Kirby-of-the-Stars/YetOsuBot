@@ -1,6 +1,6 @@
 package cn.day.kbcplugin.osubot.commands;
 
-import cn.day.kbcplugin.osubot.dao.AccountMapper;
+import cn.day.kbcplugin.osubot.db.dao.AccountMapper;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.enums.ServerEnum;
 import cn.day.kbcplugin.osubot.model.entity.Account;
@@ -33,19 +33,19 @@ public class Setter {
             @Context Account account,
             @Context Message message,
             @Arg("mode") OsuModeEnum mode
-    ){
-        try{
+    ) {
+        try {
             if (account.getPreferredMode().index > OsuModeEnum.MANIA.index) {
                 message.reply("当前服务器不兼容该mode");
                 return;
             }
             account.setPreferredMode(mode);
-            if (accountMapper.update(account, true)==1) {
+            if (accountMapper.update(account, true) == 1) {
                 message.reply("数据库操作失败,请查看后台");
             } else {
                 message.reply("修改成功");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtil.warn("Kook发送消息失败:{}", e.getLocalizedMessage(), e);
             message.reply("无法发送消息");
         }
@@ -57,21 +57,21 @@ public class Setter {
             @Context Account account,
             @Context Message message,
             @Arg("server") ServerEnum server
-            ){
-        try{
+    ) {
+        try {
             account.setPreferredServer(server);
             OsuModeEnum mode = account.getPreferredMode();
             boolean reSetMode = server.equals(ServerEnum.Bancho) && (mode.index > OsuModeEnum.MANIA.index);
             if (reSetMode) {
                 account.setPreferredMode(OsuModeEnum.STANDER);
             }
-            if(accountMapper.update(account, true)==1) {
-                if(reSetMode) message.reply("修改成功,默认mode因为服务器不兼容已被修改为std");
+            if (accountMapper.update(account, true) == 1) {
+                if (reSetMode) message.reply("修改成功,默认mode因为服务器不兼容已被修改为std");
                 else message.reply("修改成功");
-            }else {
+            } else {
                 message.reply("数据库操作失败,请查看后台");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtil.warn("Kook发送消息失败:{}", e.getLocalizedMessage(), e);
             message.reply("无法发送消息");
         }

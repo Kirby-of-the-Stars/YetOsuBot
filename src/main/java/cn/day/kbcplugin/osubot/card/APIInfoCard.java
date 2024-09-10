@@ -2,14 +2,12 @@ package cn.day.kbcplugin.osubot.card;
 
 import cn.day.kbcplugin.osubot.api.APIHandler;
 import org.dromara.hutool.core.text.StrUtil;
-import snw.jkook.message.component.MarkdownComponent;
 import snw.jkook.message.component.card.CardBuilder;
 import snw.jkook.message.component.card.MultipleCardComponent;
 import snw.jkook.message.component.card.Size;
 import snw.jkook.message.component.card.Theme;
 import snw.jkook.message.component.card.element.BaseElement;
 import snw.jkook.message.component.card.element.MarkdownElement;
-import snw.jkook.message.component.card.element.PlainTextElement;
 import snw.jkook.message.component.card.module.DividerModule;
 import snw.jkook.message.component.card.module.HeaderModule;
 import snw.jkook.message.component.card.module.SectionModule;
@@ -20,7 +18,7 @@ import java.util.List;
 
 public class APIInfoCard {
 
-    public static MultipleCardComponent build(){
+    public static MultipleCardComponent build() {
         CardBuilder buildr = new CardBuilder();
         buildr.setTheme(Theme.INFO);
         buildr.setSize(Size.LG);
@@ -29,7 +27,7 @@ public class APIInfoCard {
         fields.add(new MarkdownElement(StrUtil.format("**铺面数据API**\n{}", APIHandler.INSTANCE.getMapInfoProvider().getName())));
         fields.add(new MarkdownElement(StrUtil.format("**铺面下载API**\n{}", APIHandler.INSTANCE.getBeatmapDownLoadProvider().getName())));
         fields.add(new MarkdownElement(StrUtil.format("**铺面BG下载API**\n{}", APIHandler.INSTANCE.getBeatMapBGProvider().getName())));
-        buildr.addModule(new SectionModule(new Paragraph(3,fields)));
+        buildr.addModule(new SectionModule(new Paragraph(3, fields)));
         buildr.addModule(DividerModule.INSTANCE);
         buildr.addModule(new HeaderModule("当前可用的API如下"));
         buildr.addModule(new SectionModule(new MarkdownElement("bancho(v1) ppysb chimu sayo(WIP)")));

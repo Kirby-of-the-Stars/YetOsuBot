@@ -2,7 +2,6 @@ package cn.day.kbcplugin.osubot.model.api.sb;
 
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.model.api.base.IScore;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -10,6 +9,7 @@ import org.dromara.hutool.core.annotation.Alias;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 @Data
 @Accessors(chain = true)
 public class SbScoreInfo implements IScore {

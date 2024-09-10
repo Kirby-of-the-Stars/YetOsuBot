@@ -2,9 +2,9 @@ package cn.day.kbcplugin.osubot.model.api.sb;
 
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
 import cn.day.kbcplugin.osubot.model.api.base.IUserInfo;
-import org.dromara.hutool.core.annotation.Alias;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.dromara.hutool.core.annotation.Alias;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -59,7 +59,7 @@ public class SbUserInfo implements IUserInfo {
     }
 
     public Integer getCurrentMode() {
-        if(currentMode == null) {
+        if (currentMode == null) {
             currentMode = preferredMode;
         }
         return currentMode;

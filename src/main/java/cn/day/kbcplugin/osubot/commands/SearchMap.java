@@ -34,34 +34,38 @@ public class SearchMap {
             @Context Message message,
             @Arg("keywords") String[] keywords
     ) {
-        search(OsuModeEnum.STANDER,message,keywords);
+        search(OsuModeEnum.STANDER, message, keywords);
     }
+
     @Execute(name = "taiko")
     public void searchTaiko(
             @Context Message message,
             @Arg String[] keywords
     ) {
-        search(OsuModeEnum.TAIKO,message,keywords);
+        search(OsuModeEnum.TAIKO, message, keywords);
     }
+
     @Execute(name = "catch")
     public void searchCatch(
             @Context Message message,
             @Arg String[] keywords
     ) {
-        search(OsuModeEnum.CATCH,message,keywords);
+        search(OsuModeEnum.CATCH, message, keywords);
     }
+
     @Execute(name = "mania")
     public void searchMania(
             @Context Message message,
             @Arg String[] keywords
     ) {
-        search(OsuModeEnum.MANIA,message,keywords);
+        search(OsuModeEnum.MANIA, message, keywords);
     }
-    private void search(OsuModeEnum mode,Message message,String[] keywords){
+
+    private void search(OsuModeEnum mode, Message message, String[] keywords) {
         try {
             List<String> words = new ArrayList<>(Arrays.asList(keywords));
             StringBuilder keyword = new StringBuilder();
-            for(String s:words){
+            for (String s : words) {
                 keyword.append(s);
                 keyword.append(" ");
             }

@@ -29,7 +29,7 @@ public class UserInfo {
     private String userName;
     private LocalDate updateTime;
 
-    public UserInfo (IUserInfo userInfo,String kookId,ServerEnum server,OsuModeEnum mode){
+    public UserInfo(IUserInfo userInfo, String kookId, ServerEnum server, OsuModeEnum mode) {
         this.osuId = userInfo.getUserId();
         this.userName = userInfo.getUserName();
         this.kookId = kookId;

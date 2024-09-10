@@ -33,14 +33,17 @@ public class ChimuBeatmapInfo implements IBeatmap {
     //self add
     private String titleUnicode;
     private String artistUnicode;
+
     @Override
     public String getArtist() {
         return artistUnicode;
     }
+
     @Override
     public String getTitle() {
         return titleUnicode;
     }
+
     @Override
     public String getCreator() {
         return "";

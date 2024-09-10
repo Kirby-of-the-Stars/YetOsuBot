@@ -6,18 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Mods {
-    private long result = 0;
     private static final List<String> modList = Arrays.asList("HR", "NF", "EZ", "TD", "HD", "HR", "SD", "DT", "RX",
             "HT", "NC", "FL", "AT", "SO", "AP", "PF", "4K", "5K", "6K", "7K", "8K", "FI", "RM", "CN", "TG", "9K", "KC", "1K",
             "3K", "2K", "V2", "MR");
-
-    public Long build() {
-        if (result < 0) {
-            throw new IllegalArgumentException("mods should bigger then 0");
-        } else {
-            return result;
-        }
-    }
+    private long result = 0;
 
     private Mods() {
     }
@@ -26,69 +18,8 @@ public class Mods {
         return new Mods();
     }
 
-    public Mods NF() {
-        this.result += 1;
-        return this;
-    }
-
-    public Mods EZ() {
-        this.result += 2;
-        return this;
-    }
-
-    public Mods TD() {
-        this.result += 4;
-        return this;
-    }
-
-    public Mods HD() {
-        this.result += 8;
-        return this;
-    }
-
-    public Mods HR() {
-        this.result += 16;
-        return this;
-    }
-
-
-    public Mods DT() {
-        this.result += 64;
-        return this;
-    }
-
-    public Mods RX() {
-        this.result += 128;
-        return this;
-    }
-
-    public Mods HT() {
-        this.result += 256;
-        return this;
-    }
-
-    public Mods FL() {
-        this.result += 1024;
-        return this;
-    }
-
-    public Mods SO() {
-        this.result += 4096;
-        return this;
-    }
-
     public static Long None() {
         return 0L;
-    }
-
-    public Mods auto(Byte mods) {
-        result += mods.longValue();
-        return this;
-    }
-
-    public Mods auto(long mods) {
-        result += mods;
-        return this;
     }
 
     /**
@@ -217,7 +148,6 @@ public class Mods {
 
     public static int modeInt(String mod) {
         return switch (mod) {
-            default -> 0;
             case "NF" -> 1;
             case "EZ" -> 2;
             case "TD" -> 4;
@@ -249,6 +179,75 @@ public class Mods {
             case "2K" -> 268435456;
             case "V2" -> 536870912;
             case "MR" -> 1073741824;
+            default -> 0;
         };
+    }
+
+    public Long build() {
+        if (result < 0) {
+            throw new IllegalArgumentException("mods should bigger then 0");
+        } else {
+            return result;
+        }
+    }
+
+    public Mods NF() {
+        this.result += 1;
+        return this;
+    }
+
+    public Mods EZ() {
+        this.result += 2;
+        return this;
+    }
+
+    public Mods TD() {
+        this.result += 4;
+        return this;
+    }
+
+    public Mods HD() {
+        this.result += 8;
+        return this;
+    }
+
+    public Mods HR() {
+        this.result += 16;
+        return this;
+    }
+
+    public Mods DT() {
+        this.result += 64;
+        return this;
+    }
+
+    public Mods RX() {
+        this.result += 128;
+        return this;
+    }
+
+    public Mods HT() {
+        this.result += 256;
+        return this;
+    }
+
+    public Mods FL() {
+        this.result += 1024;
+        return this;
+    }
+
+    public Mods SO() {
+        this.result += 4096;
+        return this;
+    }
+
+    public Mods auto(Byte mods) {
+        result += mods.longValue();
+        return this;
+    }
+
+    public Mods auto(long mods) {
+        result += mods;
+        return this;
     }
 }

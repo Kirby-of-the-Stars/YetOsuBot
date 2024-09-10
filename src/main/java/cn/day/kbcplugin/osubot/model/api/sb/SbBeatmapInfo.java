@@ -1,10 +1,9 @@
 package cn.day.kbcplugin.osubot.model.api.sb;
 
 import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
-import org.dromara.hutool.core.annotation.Alias;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.dromara.hutool.core.annotation.Alias;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

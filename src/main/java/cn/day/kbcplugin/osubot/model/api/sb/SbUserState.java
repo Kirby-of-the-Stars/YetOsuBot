@@ -1,8 +1,8 @@
 package cn.day.kbcplugin.osubot.model.api.sb;
 
-import org.dromara.hutool.core.annotation.Alias;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.dromara.hutool.core.annotation.Alias;
 
 import java.math.BigDecimal;
 

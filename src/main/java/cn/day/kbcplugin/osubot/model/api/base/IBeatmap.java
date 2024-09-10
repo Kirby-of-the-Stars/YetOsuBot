@@ -5,10 +5,16 @@ package cn.day.kbcplugin.osubot.model.api.base;
  */
 public interface IBeatmap {
     Long getSid();
+
     Long getBid();
+
     String getArtist();
+
     String getTitle();
+
     Integer getMaxCombo();
+
     String getVersion();
+
     String getCreator();
 }

@@ -3,7 +3,6 @@ package cn.day.kbcplugin.osubot.model.api.bancho.legacy;
 import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dromara.hutool.core.annotation.Alias;
 
 import java.math.BigDecimal;

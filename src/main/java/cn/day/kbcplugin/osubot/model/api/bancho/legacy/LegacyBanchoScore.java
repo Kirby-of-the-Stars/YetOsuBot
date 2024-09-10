@@ -10,6 +10,7 @@ import org.dromara.hutool.core.annotation.Alias;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 @Data
 @Accessors(chain = true)
 public class LegacyBanchoScore implements IScore {
@@ -48,36 +49,43 @@ public class LegacyBanchoScore implements IScore {
     public Long Score() {
         return score;
     }
+
     @Nullable
     @Override
     public Float PP() {
         return null;
     }
+
     @Nullable
     @Override
     public Float Acc() {
-        return BigDecimal.valueOf(ScoreUtil.genAccDouble(this,mode().index)).floatValue();
+        return BigDecimal.valueOf(ScoreUtil.genAccDouble(this, mode().index)).floatValue();
     }
+
     @Nullable
     @Override
     public Float AimPP() {
         return 0f;
     }
+
     @Nullable
     @Override
     public Float SpeedPP() {
         return 0f;
     }
+
     @Nullable
     @Override
     public Float AccPP() {
         return 0f;
     }
+
     @Nullable
     @Override
     public Float MaxPP() {
         return 0f;
     }
+
     @Nullable
     @Override
     public Float FcPP() {
@@ -137,7 +145,7 @@ public class LegacyBanchoScore implements IScore {
 
     @Override
     public boolean isPerfect() {
-        return perfect==1;
+        return perfect == 1;
     }
 
     @Override

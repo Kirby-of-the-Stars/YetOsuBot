@@ -9,7 +9,7 @@ import snw.jkook.message.component.card.module.SectionModule;
 
 public class ErrorCard {
 
-    public static MultipleCardComponent build(MarkdownElement ele){
+    public static MultipleCardComponent build(MarkdownElement ele) {
         CardBuilder builder = new CardBuilder();
         builder.setTheme(Theme.DANGER)
                 .setSize(Size.LG);
