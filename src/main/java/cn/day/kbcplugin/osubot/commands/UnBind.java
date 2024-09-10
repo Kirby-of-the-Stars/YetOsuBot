@@ -1,8 +1,7 @@
 package cn.day.kbcplugin.osubot.commands;
 
-import cn.day.kbcplugin.osubot.dao.AccountMapper;
-import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
-import cn.day.kbcplugin.osubot.model.entity.Account;
+import cn.day.kbcplugin.osubot.db.dao.AccountMapper;
+import cn.day.kbcplugin.osubot.db.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.row.Db;
@@ -14,20 +13,18 @@ import dev.rollczi.litecommands.annotations.inject.Inject;
 import dev.rollczi.litecommands.annotations.optional.OptionalArg;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
-import snw.jkook.command.CommandSender;
 import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.kookbc.impl.command.litecommands.annotations.prefix.Prefix;
 
 @Command(name = "unbind")
 @Prefix("/")
-@Description("删除账号,用法 /unbind [osuId] |带上osuId时，删除指定osuId下的数据,否则删除kook账号下的所有数据")
+@Description("删除账号,用法 /unbind [osuId] 删除指定osuId下的数据")
 public class UnBind {
 
+    private static final Log logger = LogFactory.getLog("[Unbind Command]");
     private final AccountMapper accountMapper;
     private final UserInfoMapper userInfoMapper;
-
-    private static final Log logger = LogFactory.getLog("[Unbind Command]");
 
     @Inject
     public UnBind(AccountMapper accountMapper, UserInfoMapper userInfoMapper) {
@@ -61,4 +58,5 @@ public class UnBind {
             message.reply("无法发送消息");
         }
     }
+    //TODO unbind all
 }

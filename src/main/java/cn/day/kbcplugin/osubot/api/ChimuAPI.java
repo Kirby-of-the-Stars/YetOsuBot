@@ -3,7 +3,7 @@ package cn.day.kbcplugin.osubot.api;
 import cn.day.kbcplugin.osubot.api.base.IBeatMapBGProvider;
 import cn.day.kbcplugin.osubot.api.base.IBeatmapDownLoadProvider;
 import cn.day.kbcplugin.osubot.enums.OsuModeEnum;
-import cn.day.kbcplugin.osubot.interceptor.RetryInterceptor;
+import cn.day.kbcplugin.osubot.model.api.base.IBeatmap;
 import cn.day.kbcplugin.osubot.model.api.chimu.ChimuBeatmap;
 import cn.day.kbcplugin.osubot.utils.URLBuilder;
 import okhttp3.*;
@@ -29,14 +29,18 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
     public static final String BASE_URL = "https://catboy.best";
     public static final String BG_URL = "/preview/background/";
     private static final String API_VERSION = "/api/v2";
-    private final OkHttpClient client = new OkHttpClient.Builder()
-            .readTimeout(10L, TimeUnit.SECONDS)//add readTimeout limit for resource download
-            .addInterceptor(new RetryInterceptor(3))
-            .build();
     private static final Log logger = LogFactory.getLog("[Chimu API]");
+    private static final List<String> subTypeList = Arrays.asList("png", "jpeg", "jpg");
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(10L, TimeUnit.SECONDS)
+            .readTimeout(10L, TimeUnit.SECONDS)//add readTimeout limit for resource download
+            .retryOnConnectionFailure(true)
+            .build();
 
     @Override
-    public boolean downloadMap(String beatmapId, File target) {
+    public boolean downloadMap(IBeatmap beatmap, File target) {
+        String beatmapId = String.valueOf(beatmap.getBid());
+        logger.info("开始下载铺面文件:{}", beatmapId);
         final String url = StrUtil.format("{}{}{}", BASE_URL, "/osu/", beatmapId);
         try {
             HttpUrl httpUrl = URLBuilder.builder(url).build();
@@ -56,7 +60,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                 return true;
             }
         } catch (IOException e) {
-            logger.error("下载地图失败:{}", e.getLocalizedMessage(), e);
+            logger.error("下载铺面失败:{}", e.getLocalizedMessage(), e);
         } catch (JSONException e) {
             logger.error("JSON解析异常:{}", e.getLocalizedMessage(), e);
         } catch (Exception e) {
@@ -70,16 +74,14 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
         return "Chimu API";
     }
 
-    private static final List<String> subTypeList = Arrays.asList("png", "jpeg", "jpg");
-
     @Override
-    public File downloadBG(String beatmapId, File target) {
+    public File downloadBG(IBeatmap beatmap, File target) {
+        String beatmapId = String.valueOf(beatmap.getBid());
+        logger.info("开始下载背景图:{}", beatmapId);
         final String url = StrUtil.format("{}{}{}", BASE_URL, BG_URL, beatmapId);
         try {
             HttpUrl httpUrl = URLBuilder.builder(url).build();
             Request request = new Request.Builder().url(httpUrl).get().build();
-            long current = System.currentTimeMillis();
-            logger.info("开始下载地图:{}", beatmapId);
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
                 ResponseBody resBody = response.body();
@@ -103,7 +105,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                     return null;
                 }
                 // observer which is none png file
-                // current : jpg "(Nico" (not stand type)
+                // found type "(Nico" (not stand type)
                 String prefix;
                 prefix = contentType.subtype();
                 if (!subTypeList.contains(prefix)) {
@@ -113,11 +115,10 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                 target = new File(target, beatmapId + "-bg" + "." + prefix);
                 FileUtil.touch(target);
                 FileUtil.writeBytes(resBody.bytes(), target);
-                logger.info("下载完成用时:{}s", TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - current));
                 return target;
             }
         } catch (IOException e) {
-            logger.error("下载地图失败:{}", e.getLocalizedMessage(), e);
+            logger.error("下载背景图失败:{}", e.getLocalizedMessage(), e);
         } catch (JSONException e) {
             logger.error("JSON解析异常:{}", e.getLocalizedMessage(), e);
         } catch (Exception e) {
@@ -142,13 +143,13 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
 
     public List<ChimuBeatmap> searchBeatmap(String keyword, int limit, OsuModeEnum mode) {
         final String url = StrUtil.format("{}{}{}", BASE_URL, API_VERSION, "/search");
-        int modeVal = mode==null?-1:mode.index;
-        try{
+        int modeVal = mode == null ? -1 : mode.index;
+        try {
             HttpUrl httpUrl = URLBuilder.builder(url)
                     .put("query", keyword)
                     .put("limit", String.valueOf(limit))
                     .put("mode", String.valueOf(modeVal))
-                    .put("status","2")
+                    .put("status", "2")
                     .build();
             Request request = new Request.Builder().url(httpUrl).get().build();
             try (Response response = client.newCall(request).execute()) {
@@ -158,7 +159,7 @@ public class ChimuAPI implements IBeatmapDownLoadProvider, IBeatMapBGProvider {
                 String rawJson = IoUtil.read(resBody.byteStream(), StandardCharsets.UTF_8);
                 return JSONUtil.parseArray(rawJson).toList(ChimuBeatmap.class);
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             logger.error("搜索地图失败:{}", e.getLocalizedMessage(), e);
         } catch (JSONException e) {
             logger.error("JSON解析异常:{}", e.getLocalizedMessage(), e);

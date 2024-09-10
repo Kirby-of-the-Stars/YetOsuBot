@@ -29,12 +29,12 @@ import java.util.Optional;
  */
 public class LegacyBanchoAPI implements IAPIHandler {
 
-    private final OkHttpClient client = new OkHttpClient();
-    private static final String BASE_URL = "https://osu.ppy.sh/api";
-    private static final String AVATAR_URL = "https://a.ppy.sh";
     public static final String BANCHO_MAP_URL = "https://osu.ppy.sh/beatmapsets/";
     public static final String BANCHO_MAP_COVER_URL = "https://assets.ppy.sh/beatmaps/{}/covers/cover.jpg";
+    private static final String BASE_URL = "https://osu.ppy.sh/api";
+    private static final String AVATAR_URL = "https://a.ppy.sh";
     private static final Log logger = LogFactory.getLog("[Bancho Legacy API]");
+    private final OkHttpClient client = new OkHttpClient.Builder().build();
     private final String apiKey;
 
     public LegacyBanchoAPI(String apiKey) {
@@ -103,7 +103,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
             if (result == null || result.isEmpty()) return null;
             return result.getFirst().setMode(mode);
         } catch (IOException e) {
-            logger.error("获取铺面信息失败:{}", e.getLocalizedMessage(), e);
+            logger.error("获取成绩信息失败:{}", e.getLocalizedMessage(), e);
         } catch (JSONException e) {
             logger.error("JSON解析异常:{}", e.getLocalizedMessage(), e);
         } catch (Exception e) {
@@ -124,7 +124,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
                     .put("type", "id")
                     .buildWithGetRequest();
             List<LegacyBanchoScore> scoreList = getList(request, LegacyBanchoScore.class);
-            if (scoreList == null || scoreList.isEmpty()) return null;
+            if (scoreList == null || scoreList.isEmpty()) return new ArrayList<>();
             scoreList.forEach((s) -> s.setMode(mode));
             return scoreList;
         } catch (IOException e) {
@@ -134,7 +134,7 @@ public class LegacyBanchoAPI implements IAPIHandler {
         } catch (Exception e) {
             logger.error("API意外异常:{}", e.getLocalizedMessage(), e);
         }
-        return new ArrayList<>();
+        return null;
     }
 
     @Override
@@ -146,13 +146,18 @@ public class LegacyBanchoAPI implements IAPIHandler {
         try {
             HttpUrl httpUrl = URLBuilder.builder(StrUtil.format(BANCHO_MAP_COVER_URL, sid)).build();
             Request request = new Request.Builder().url(httpUrl).build();
-            ResponseBody responseBody = getRaw(request);
-            Optional<MediaType> type = Optional.ofNullable(responseBody.contentType());
-            if ("image".equals(type.map(MediaType::type).orElse(""))) {
-                //is image
-                return IoUtil.readBytes(responseBody.byteStream());
-            } else {
-                return null;
+            ResponseBody resBody = null;
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                resBody = response.body();
+                if (resBody == null) throw new IOException("Empty Response" + response);
+                Optional<MediaType> type = Optional.ofNullable(resBody.contentType());
+                if ("image".equals(type.map(MediaType::type).orElse(""))) {
+                    //is image
+                    return IoUtil.readBytes(resBody.byteStream());
+                } else {
+                    return null;
+                }
             }
         } catch (IOException e) {
             return null;
@@ -164,14 +169,6 @@ public class LegacyBanchoAPI implements IAPIHandler {
         return "BanchoAPI(v1)";
     }
 
-    private ResponseBody getRaw(Request request) throws IOException {
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            ResponseBody resBody = response.body();
-            if (resBody == null) throw new IOException("Empty Response" + response);
-            return resBody;
-        }
-    }
 
     //default builder
     private URLBuilder urlBuilder(String url) {
@@ -179,10 +176,16 @@ public class LegacyBanchoAPI implements IAPIHandler {
     }
 
     private <T> List<T> getList(Request request, Class<T> clazz) throws Exception {
-        String body = IoUtil.readUtf8(getRaw(request).byteStream());
-        JSONArray rawList = JSONUtil.parseArray(body);
-        if (rawList.isEmpty()) return null;
-        return rawList.toList(clazz);
+        ResponseBody resBody = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            resBody = response.body();
+            if (resBody == null) throw new IOException("Empty Response" + response);
+            String body = IoUtil.readUtf8(resBody.byteStream());
+            JSONArray rawList = JSONUtil.parseArray(body);
+            if (rawList.isEmpty()) return null;
+            return rawList.toList(clazz);
+        }
     }
 
 }

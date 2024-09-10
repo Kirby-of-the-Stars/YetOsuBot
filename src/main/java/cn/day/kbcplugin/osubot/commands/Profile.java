@@ -1,7 +1,7 @@
 package cn.day.kbcplugin.osubot.commands;
 
-import cn.day.kbcplugin.osubot.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.card.ProfileCard;
+import cn.day.kbcplugin.osubot.db.dao.UserInfoMapper;
 import cn.day.kbcplugin.osubot.model.entity.Account;
 import cn.day.kbcplugin.osubot.model.entity.UserInfo;
 import com.mybatisflex.core.query.QueryChain;
@@ -12,7 +12,6 @@ import dev.rollczi.litecommands.annotations.execute.Execute;
 import dev.rollczi.litecommands.annotations.inject.Inject;
 import org.dromara.hutool.log.Log;
 import org.dromara.hutool.log.LogFactory;
-import snw.jkook.command.CommandSender;
 import snw.jkook.entity.User;
 import snw.jkook.message.Message;
 import snw.jkook.message.component.card.MultipleCardComponent;
@@ -28,8 +27,8 @@ import static cn.day.kbcplugin.osubot.model.entity.table.UserInfoTableDef.USER_I
 @Description("查询当前kook下的osu账号,用法/profile 或者/pf")
 public class Profile {
 
-    private final UserInfoMapper userInfoMapper;
     private static final Log logger = LogFactory.getLog("[Profile Command]");
+    private final UserInfoMapper userInfoMapper;
 
     @Inject
     public Profile(UserInfoMapper userInfoMapper) {
@@ -39,6 +38,7 @@ public class Profile {
     @Execute
     public void infoMe(
             @Context User sender,
+            @Context Account account,
             @Context Message message) {
         MultipleCardComponent card = null;
         try {
@@ -47,7 +47,7 @@ public class Profile {
                     .from(USER_INFO)
                     .where(USER_INFO.KOOK_ID.eq(sender.getId()))
                     .list();
-            card = ProfileCard.build(list, sender.getName());
+            card = ProfileCard.build(list, sender.getName(), account);
             message.reply(card);
         } catch (Exception e) {
             logger.warn("Kook发送消息失败:{}", e.getLocalizedMessage(), e);
