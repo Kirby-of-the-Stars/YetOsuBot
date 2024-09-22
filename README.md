@@ -2,12 +2,12 @@
 > 想做一个在Kook里用的白菜
 
 current state: WIP \
-当前进度: 重构中
+当前进度: 咕咕咕
 
 ### 特点
 - 支持多服务器成绩(目前是bancho 和[ppysb](htpps://osu.ppy.sb))
 - 离线pp计算 ~~但是下载地图还是要网~~
-- 可以设置API源 ~~不过成绩就没法用镜像了~~
+- 可以设置API源
 
 ### 大饼
 - 个人信息历史
@@ -19,8 +19,9 @@ current state: WIP \
 - 去KOOK开发中心申请一个Bot : https://developer.kookapp.cn/app/index
 - 下载KooKBC 作为插件的运行容器 : https://github.com/SNWCreations/KookBC
 - 选择一个目录作为机器人的运行目录,然后塞入kookbc并运行
+> 目前插件仅支持0.31.0及以上的kookbc
 ```shell
-java -jar kookbc-0.30.2.jar
+java -jar kookbc-0.31.0.jar
 ```
 - 生成完相关文件即可关闭,将插件放入生成出来的plugins文件夹
 - 打开kbc.yml文件填入从开发者中心获取到的token
@@ -30,7 +31,7 @@ token: "tokennnnn"
 - 保存并重新运行kookbc
 - 在插件目录当中生成了与插件同名的数据文件,点进去,修改`config.yml`文件,申请Osu LegacyAPI key后填入(用于bancho的成绩查询和相关功能)
 - 敬请享用
-- 目前kookbc正式版对于高版本JDK支持有严重问题，可能需要自行编译其dev分支下的kookbc才可正常运行
+- 使用/help可以查看所有命令
 
 注意: **机器人会在插件目录生成同名的数据文件,如非必要,请勿修改**
 
